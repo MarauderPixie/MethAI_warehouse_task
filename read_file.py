@@ -30,10 +30,19 @@ for item in open("order11.txt"):
 for item in open("oder12.txt"):
     order12 = item.split(" ")
 
+# print how many PSU were used
+# print identifier of the PSU and items stored in the PSU
 # print(order11)
 # print(order12)
 
+# Dictionary items to numbers
+dictionary_stock = {}
+i: int
+for i in range(len(stock)):
+    dictionary_stock[stock[i]] = i+1
+print(dictionary_stock) #I cant figure out how to 'translate' the items in the PSUs and warehouse with this dict. 
 
 
-# print how many PSU were used
-# print identifier of the PSU and items stored in the PSU
+
+
+
