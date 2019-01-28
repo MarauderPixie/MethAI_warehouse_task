@@ -40,7 +40,21 @@ dictionary_stock = {}
 i: int
 for i in range(len(stock)):
     dictionary_stock[stock[i]] = i+1
-print(dictionary_stock) #I cant figure out how to 'translate' the items in the PSUs and warehouse with this dict. 
+print(dictionary_stock) 
+
+# convert the items in the PSUs to Numbers. 
+def replace_matched_PSU(word_list, dictionary):
+    new_list = [[dictionary.get(item, item) for item in lst] for lst in word_list]
+    return new_list
+NoWarehouse = replace_matched_items(warehouse, dictionary_stock)
+#print(NoWarehouse)
+
+# convert the items in the order to Numbers
+def convert_item_in_order(word_list, dictionary):
+    new_list = [dictionary.get(item) for item in word_list]
+    return new_list
+NoOrder11 = convert_item_in_order(order11,dictionary_stock)
+NoOrder12 = convert_item_in_order(order12,dictionary_stock)
 
 
 
