@@ -56,6 +56,20 @@ def convert_item_in_order(word_list, dictionary):
 NoOrder11 = convert_item_in_order(order11,dictionary_stock)
 NoOrder12 = convert_item_in_order(order12,dictionary_stock)
 
+#---------this does not work!--------------
+#filter PSUs that contain at least one item of the order
+def filter_interesting_PSU(order, PSU):
+    for rob in PSU:
+        for x in order:
+            for n in rob:
+                condition = x == n
+
+        new_list = np.extract(condition, NoWarehouse)
+    return new_list
+intresting = filter_interesting_PSU(NoOrder11,NoWarehouse)
+print(intresting)
+print(NoOrder11)
+
 
 
 
