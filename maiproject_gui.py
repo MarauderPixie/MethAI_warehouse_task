@@ -3,6 +3,8 @@
 ######important importing#########################
 import sys
 from tkinter import *
+from tkinter import filedialog
+import numpy as np
 ##################################################
 #GOAL: we want a psu carry as many items possible of our order
 
@@ -20,7 +22,7 @@ stock = warehouse[0] #the first line, what is in stock
 warehouse = warehouse[1:] #now we have a list of the psus
 #print(warehouse)
 #print(stock)
-print(len(stock)) #286
+#print(len(stock)) #286
 
 #2. open the order11, store in list
 for item in open("order11.txt"):
@@ -30,10 +32,23 @@ for item in open("order11.txt"):
 for item in open("order12.txt"):
     order12 = item.split(" ")
 
+# Dictionary items to numbers
+dictionary_stock = {}
+i: int
+for i in range(len(stock)):
+    dictionary_stock[stock[i]] = i+1
+
+# convert the items in the PSUs to Numbers.
+def replace_matched_PSU(word_list, dictionary):
+    new_list = [[dictionary.get(item, item) for item in lst] for lst in word_list]
+    return new_list
+NoWarehouse = replace_matched_PSU(warehouse, dictionary_stock)
+
+
 #print(order11)
 #print(order12)
 
-#creating a GPU
+#creating a GUI
 
 #1. creating a window
 root = Tk()
@@ -43,7 +58,14 @@ firstlabel.pack()
 #first frame that should somehow show the stock
 firstframe = Frame(root)
 firstframe.pack()
-stock_but = Button(firstframe, text = "here you can have a look at our stock", command = open("stock.txt"))
+
+
+##define here where to open the file,
+def openInstruktion():
+    from os import startfile
+    startfile("stock.txt")
+
+stock_but = Button(firstframe, text = "here you can have a look at our stock", command = openInstruktion)
 stock_but.pack(side = TOP)
 
 #second frame to select an order
@@ -65,11 +87,18 @@ psuus = Label(forframe, text = "you used ... psus")
 psuus.pack(side = BOTTOM)
 
 #creating buttons
-#read in your order button
-#selectbut = Button(secframe, text = "this should be a button to select your order somehow", fg = "green")
-#if we need to read in an order (as a text file)
-order = Entry(secframe, text = "read in your order file here: ") # ,command =
-order.pack()
+#read in your order button as a text file
+def UploadAction(event=None):
+    selected_order = filedialog.askopenfile()
+    print('Selected:', selected_order)
+    order = selected_order.read()
+    print(order)
+    return order
+
+
+button = Button(secframe, text='Load your orderfile here', command=UploadAction)
+button.pack()
+
 
 #choose the algo button
 OPTIONS = [
@@ -93,11 +122,31 @@ if algobut == OPTIONS[2] or algobut == OPTIONS[4]:
 #local beam search brauchen wir config numb of states
 
 #final start button
-orderbut = Button(forframe, text = "Start Order", fg = "red")
+orderbut = Button(forframe, text = "Start Order", fg = "red", command = lambda: selected_order.start_processing())
 orderbut.pack()
 root.mainloop()
 
-##look for a GPU
+############################reshape the input order############################
+def start_processing(order, convert_item_in_order):
+    for item in order:
+        order = item.split(" ")
+    convert_item_in_order(order,dictionary_stock)
+    print(num_order)
+    return num_order
+
+
+# 1. store order in list
+#for item in selected_order:
+#    selected_order = item.split(" ")
+
+# convert the items in the order to Numbers
+def convert_item_in_order(word_list, dictionary):
+    num_order = [dictionary.get(item) for item in word_list]
+    return num_order
+order = convert_item_in_order(rder,dictionary_stock)
+print(order)
+print(num_order)
+###################################################################
 
 # class Application(tk.Frame):
 #     def __init__(self, master=None):
