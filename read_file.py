@@ -46,7 +46,7 @@ print(dictionary_stock)
 def replace_matched_PSU(word_list, dictionary):
     new_list = [[dictionary.get(item, item) for item in lst] for lst in word_list]
     return new_list
-NoWarehouse = replace_matched_items(warehouse, dictionary_stock)
+NoWarehouse = replace_matched_PSU(warehouse, dictionary_stock)
 #print(NoWarehouse)
 
 # convert the items in the order to Numbers
