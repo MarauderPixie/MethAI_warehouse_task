@@ -70,6 +70,84 @@ intresting = filter_interesting_PSU(NoOrder11,NoWarehouse)
 print(intresting)
 print(NoOrder11)
 
+#----------NEW-----------------
+#simulates annealing still needs work!
+def update_temperature(T):
+    return T - 0.0001
+
+def get_covered_items(S, R):
+    cov = []
+    for i in range(len(S)):
+        if S[i] == 1:
+            cov.append(R[i])
+    return cov
+
+def get_fitness(S, R, O):
+    covered = get_covered_items(S, R)
+    covered = set([item for sublist in covered for item in sublist]) #flattens list of list and throws out duplicats
+    y = sum(S) #number of PSUs used
+    print("sum:", y)
+    fit = len(covered) - y #fit is the number of covered items minus the number of PSUs
+    return fit
+
+def get_neighbors(S, O):
+    x = random.choice(range(0, len(S)- 1))
+    y = random.choice(range(0, len(S) - 1))
+    z = np.random.choice([0, 1], 1)
+    if S[x] == 1:
+        S[x] = 0
+    else:
+        S[x] = 1
+    if z == 1:
+        if S[y] == 1:
+            S[y] = 0
+        else:
+            S[y] = 1
+    return S
+
+def make_move(S, R, O, T):
+    nhb = get_neighbors(S, O)
+    current = get_fitness(S, R, O)
+    new = get_fitness(nhb, R, O)
+    delta = new - current
+    print("ngb: ", get_fitness(nhb, R, O))
+    print("state: ", get_fitness(S, R, O))
+    print("delta",delta)
+
+
+    if delta > 0:
+        return nhb
+    else:
+        p = math.exp(delta / T)
+        return nhb if random.random() > p else S
+
+def simulated_annealing(R,O): #A= relevant, O = order
+    L = len(R)
+    goal = len(O)
+    state_0 = np.random.choice([0, 1], size=(L, ), p=[1-len(O)/L, len(O)/L]) #rendom array 0=PSU not used 1=PSUused
+    T = 1
+    state = state_0
+    state_best = state_0
+    k = 0
+    print("start")
+
+    while T > 1e-3:
+        state = make_move(state, R, O, T)
+        if get_fitness(state, R, O) > get_fitness(state_best, R, O):
+            state_best = state #in theory this should only take if the next state is better but somehow i just takes it always
+        print("best", get_fitness(state_best, R, O))
+        T = update_temperature(T)
+        k += 1
+
+    cov = get_covered_items(state_best, R)
+    cov = len(set([item for sublist in cov for item in sublist]))
+    used = sum(state_best)
+    other = sum(state)
+    print("iterations:", k, "PSUs used:",used,"covered:", cov, "Items in order:", goal, "state:", state_best, "other", other)
+    return state, state_best, state_0
+
+simulated_annealing(relevant,NoOrder12)
+
 
 
 
