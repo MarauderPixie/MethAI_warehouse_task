@@ -57,23 +57,12 @@ NoOrder11 = convert_item_in_order(order11,dictionary_stock)
 NoOrder12 = convert_item_in_order(order12,dictionary_stock)
 
 #---------this does not work!--------------
-#filter PSUs that contain at least one item of the order
-def filter_interesting_PSU(order, PSU):
-    for rob in PSU:
-        for x in order:
-            for n in rob:
-                condition = x == n
 
-        new_list = np.extract(condition, NoWarehouse)
-    return new_list
-intresting = filter_interesting_PSU(NoOrder11,NoWarehouse)
-print(intresting)
-print(NoOrder11)
+#simulated annealing
+#INITIALIZE search state s, temperature t
 
-#----------NEW-----------------
-#simulates annealing still needs work!
 def update_temperature(T):
-    return T - 0.0001
+    return T - 0.001
 
 def get_covered_items(S, R):
     cov = []
@@ -82,65 +71,64 @@ def get_covered_items(S, R):
             cov.append(R[i])
     return cov
 
-def get_fitness(S, R, O):
+def get_fitness(S, R):
     covered = get_covered_items(S, R)
     covered = set([item for sublist in covered for item in sublist]) #flattens list of list and throws out duplicats
     y = sum(S) #number of PSUs used
-    print("sum:", y)
+    #print("sum:", y)
     fit = len(covered) - y #fit is the number of covered items minus the number of PSUs
     return fit
 
-def get_neighbors(S, O):
-    print("statecheck",S)
-    x = random.choice(range(0, len(S)- 1))
-    y = random.choice(range(0, len(S) - 1))
+def get_neighbors(test):
+    #print("checkstate", test)
+    nhb = test.copy()
+    x = random.choice(range(0, len(nhb) - 1))
+    y = random.choice(range(0, len(nhb) - 1))
+    m = random.choice(range(0, len(nhb) - 1))
     z = np.random.choice([0, 1], 1)
-    if S[x] == 1:
-        S[x] = 8 ##i put in the 8 so that the difference is better to spot normally we just have 0 and 1. 
-                 # if you scrol up and look at the first printed checkstate, state and nhb you see it
+
+    nhb[x] = 1
+    nhb[m] = 0
+    if z == 0:
+        nhb[y] = 1
     else:
-        S[x] = 8
-    if z == 1:
-        if S[y] == 1:
-            S[y] = 0
-        else:
-            S[y] = 1
+        nhb[y] = 0
+    nhb = nhb
+    return nhb
 
-    return S
-
-def make_move(S, R, O, T):
-    nhb = get_neighbors(S, O)
-    print("nbh", nhb) # somehow they are both the same
-    print("state", S) #somehow they are both the same
-    current = get_fitness(S, R, O)
-    new = get_fitness(nhb, R, O)
+def make_move(state, R, T):
+    test = state
+    nhb = get_neighbors(test)
+    current = get_fitness(state, R)
+    new = get_fitness(nhb, R)
     delta = new - current
-    print("ngb: ", get_fitness(nhb, R, O))
-    print("state: ", get_fitness(S, R, O))
-    print("delta",delta)
+    print("ngb: ", get_fitness(nhb, R))
+    print("state: ", get_fitness(state, R))
+    print("delta", delta)
 
 
     if delta > 0:
         return nhb
     else:
-        p = math.exp(delta / T)
-        return nhb if random.random() > p else S
+        print("time",T)
+        p = math.exp(-delta / T)
+        return nhb if random.random() > p else state
 
 def simulated_annealing(R,O): #A= relevant, O = order
     L = len(R)
     goal = len(O)
     state_0 = np.random.choice([0, 1], size=(L, ), p=[1-len(O)/L, len(O)/L]) #rendom array 0=PSU not used 1=PSUused
-    T = 1
-    state = state_0
-    state_best = state_0
+    T = 5
+    state = state_0.copy()
+    state_best = state_0.copy()
     k = 0
     print("start")
 
     while T > 1e-3:
-        state = make_move(state, R, O, T)
-        if get_fitness(state, R, O) > get_fitness(state_best, R, O):
-            state_best = state #in theory this should only take if the next state is better but somehow i just takes it always
-        print("best", get_fitness(state_best, R, O))
+        state = make_move(state, R, T)
+        if get_fitness(state, R) > get_fitness(state_best, R):
+            state_best = state.copy() #in theory this should only take if the next state is better but somehow i just takes it always
+        print("best", get_fitness(state_best, R))
         T = update_temperature(T)
         k += 1
 
@@ -152,7 +140,6 @@ def simulated_annealing(R,O): #A= relevant, O = order
     return state, state_best, state_0
 
 simulated_annealing(relevant,NoOrder12)
-
 
 
 
