@@ -91,22 +91,26 @@ def get_fitness(S, R, O):
     return fit
 
 def get_neighbors(S, O):
+    print("statecheck",S)
     x = random.choice(range(0, len(S)- 1))
     y = random.choice(range(0, len(S) - 1))
     z = np.random.choice([0, 1], 1)
     if S[x] == 1:
-        S[x] = 0
+        S[x] = 8
     else:
-        S[x] = 1
+        S[x] = 8
     if z == 1:
         if S[y] == 1:
             S[y] = 0
         else:
             S[y] = 1
+
     return S
 
 def make_move(S, R, O, T):
     nhb = get_neighbors(S, O)
+    print("nbh", nhb)
+    print("state", S)
     current = get_fitness(S, R, O)
     new = get_fitness(nhb, R, O)
     delta = new - current
@@ -147,6 +151,7 @@ def simulated_annealing(R,O): #A= relevant, O = order
     return state, state_best, state_0
 
 simulated_annealing(relevant,NoOrder12)
+
 
 
 
