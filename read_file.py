@@ -96,7 +96,8 @@ def get_neighbors(S, O):
     y = random.choice(range(0, len(S) - 1))
     z = np.random.choice([0, 1], 1)
     if S[x] == 1:
-        S[x] = 8
+        S[x] = 8 ##i put in the 8 so that the difference is better to spot normally we just have 0 and 1. 
+                 # if you scrol up and look at the first printed checkstate, state and nhb you see it
     else:
         S[x] = 8
     if z == 1:
@@ -109,8 +110,8 @@ def get_neighbors(S, O):
 
 def make_move(S, R, O, T):
     nhb = get_neighbors(S, O)
-    print("nbh", nhb)
-    print("state", S)
+    print("nbh", nhb) # somehow they are both the same
+    print("state", S) #somehow they are both the same
     current = get_fitness(S, R, O)
     new = get_fitness(nhb, R, O)
     delta = new - current
