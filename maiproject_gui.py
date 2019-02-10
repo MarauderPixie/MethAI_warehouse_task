@@ -34,7 +34,6 @@ for item in open("order12.txt"):
 
 # Dictionary items to numbers
 dictionary_stock = {}
-i: int
 for i in range(len(stock)):
     dictionary_stock[stock[i]] = i+1
 
