@@ -56,90 +56,51 @@ def convert_item_in_order(word_list, dictionary):
 NoOrder11 = convert_item_in_order(order11,dictionary_stock)
 NoOrder12 = convert_item_in_order(order12,dictionary_stock)
 
-#---------this does not work!--------------
+## define function to get only those PSUs containing at least one of the ordered items
+def get_relevant_psus(order, PSU):
+    psu_list = []
+    for rob in PSU:
+        bob = [item for item in rob if item in order]
+        psu_list.append(bob)
+    return psu_list
 
-#simulated annealing
-#INITIALIZE search state s, temperature t
+## call function on order
+relevant = get_relevant_psus(NoOrder12, NoWarehouse)
 
-def update_temperature(T):
-    return T - 0.001
+## get indices of relevant PSUs and remove "empty" PSUs from list
+psu_index = [i for i, j in enumerate(relevant) if j]
+relevant = list(filter(None, relevant))
 
-def get_covered_items(S, R):
+#dictionary relevant PSU
+dictionary_rel_PSU = {}
+i: int
+for i in range(len(psu_index)):
+    dictionary_rel_PSU[i] = psu_index[i]
+
+# Get the inex of used PSUs. S is the end state of the alg
+def PSU_used(S):
     cov = []
     for i in range(len(S)):
         if S[i] == 1:
-            cov.append(R[i])
+            cov.append(i)
     return cov
 
-def get_fitness(S, R):
-    covered = get_covered_items(S, R)
-    covered = set([item for sublist in covered for item in sublist]) #flattens list of list and throws out duplicats
-    y = sum(S) #number of PSUs used
-    #print("sum:", y)
-    fit = len(covered) - y #fit is the number of covered items minus the number of PSUs
-    return fit
+# concatenates list of index of PSU and lists also what it caries
+def get_item_of_used_PSU(idx): 
+    new_list = []
+    for i in idx:
+        new_list.append((i,NoWarehouse[i]))
+    return new_list
 
-def get_neighbors(test):
-    #print("checkstate", test)
-    nhb = test.copy()
-    x = random.choice(range(0, len(nhb) - 1))
-    y = random.choice(range(0, len(nhb) - 1))
-    m = random.choice(range(0, len(nhb) - 1))
-    z = np.random.choice([0, 1], 1)
+# get index of PSUs with more than one item
+def get_cool_PSU(rel):
+    new = []
+    for items in rel:
+        if len(items) > 1:
+            new.append(rel.index(items))
+    return new
 
-    nhb[x] = 1
-    nhb[m] = 0
-    if z == 0:
-        nhb[y] = 1
-    else:
-        nhb[y] = 0
-    nhb = nhb
-    return nhb
-
-def make_move(state, R, T):
-    test = state
-    nhb = get_neighbors(test)
-    current = get_fitness(state, R)
-    new = get_fitness(nhb, R)
-    delta = new - current
-    print("ngb: ", get_fitness(nhb, R))
-    print("state: ", get_fitness(state, R))
-    print("delta", delta)
-
-
-    if delta > 0:
-        return nhb
-    else:
-        print("time",T)
-        p = math.exp(-delta / T)
-        return nhb if random.random() > p else state
-
-def simulated_annealing(R,O): #A= relevant, O = order
-    L = len(R)
-    goal = len(O)
-    state_0 = np.random.choice([0, 1], size=(L, ), p=[1-len(O)/L, len(O)/L]) #rendom array 0=PSU not used 1=PSUused
-    T = 5
-    state = state_0.copy()
-    state_best = state_0.copy()
-    k = 0
-    print("start")
-
-    while T > 1e-3:
-        state = make_move(state, R, T)
-        if get_fitness(state, R) > get_fitness(state_best, R):
-            state_best = state.copy() #in theory this should only take if the next state is better but somehow i just takes it always
-        print("best", get_fitness(state_best, R))
-        T = update_temperature(T)
-        k += 1
-
-    cov = get_covered_items(state_best, R)
-    cov = len(set([item for sublist in cov for item in sublist]))
-    used = sum(state_best)
-    other = sum(state)
-    print("iterations:", k, "PSUs used:",used,"covered:", cov, "Items in order:", goal, "state:", state_best, "other", other)
-    return state, state_best, state_0
-
-simulated_annealing(relevant,NoOrder12)
+cool_psu = get_cool_PSU(relevant)
 
 
 
