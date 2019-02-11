@@ -101,44 +101,40 @@ def get_fitness(S, R):
     y = sum(S) #number of PSUs used
     #print("sum:", y)
     fit = len(covered) - (0.9 * y) #fit is the number of covered items minus the number of PSUs
+    #fit = (len(covered))
     return fit
 
-def get_neighbors(test,c, O):
+def get_neighbors(test):
     nhb = test.copy()
     x = random.choice(range(0, len(nhb) - 1))
     y = random.choice(range(0, len(nhb) - 1))
-    m = random.choice(range(0, len(nhb) - 1))
+    u = random.choice(range(0, len(nhb) - 1))
     z = np.random.choice([0, 1], 1)
-    if x > (0.3*len(nhb)):
+    if x > (0.4*len(nhb)):
         f = random.choice(range(0, len(cool_psu) - 1))
         n = cool_psu[f]
         nhb[n] = 1
+    else:
+        nhb[x] = 1
 
-    nhb[x] = 1
-    nhb[m] = 0
+    nhb[u] = 0
     if z == 0:
         nhb[y] = 0
     else:
         nhb[y] = 0
     return nhb
 
-def make_move(state, R, T, O):
-    cov = get_covered_items(state, R)
-    nhb = get_neighbors(state, cov, O)
+def make_move(state, R, T):
+    nhb = get_neighbors(state)
     current = get_fitness(state, R)
     new = get_fitness(nhb, R)
     delta = new - current
-    #print("ngb: ", get_fitness(nhb, R))
     print("state: ", get_fitness(state, R))
-    #print("delta", delta)
-
 
     if delta > 0:
         return nhb
     else:
-        #print("time",T)
         p = math.exp(delta / T)
-        #print("prob", p)
         return nhb if random.random() < p else state
 
 def simulated_annealing(R,O): #A= relevant, O = order
@@ -149,10 +145,10 @@ def simulated_annealing(R,O): #A= relevant, O = order
     state = state_0.copy()
     state_best = state_0.copy()
     k = 0
-    print("start")
+
 
     while T > 1e-3:
-        state = make_move(state, R, T, O)
+        state = make_move(state, R, T)
         if get_fitness(state, R) > get_fitness(state_best, R):
             state_best = state.copy() #in theory this should only take if the next state is better but somehow i just takes it always
         print("best", get_fitness(state_best, R))
@@ -161,7 +157,7 @@ def simulated_annealing(R,O): #A= relevant, O = order
 
     cov = get_covered_items(state_best, R)
     print("cov1",cov)
-    cov = set([item for sublist in cov for item in sublist])
+    cov = set([u for sublist in cov for u in sublist])
     print("cov2", cov)
     cov=len(cov)
     print("covr", cov)
