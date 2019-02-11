@@ -173,13 +173,10 @@ def simulated_annealing(R,O): #A= relevant, O = order
     idxPSU = convert_item_in_order(index,dictionary_rel_PSU)
     li = get_items_of_used_PSU(idxPSU) # list of index of PSU and what it caries
     cov = get_covered_items(state_best, R)
-    print("cov1",cov)
     cov = set([u for sublist in cov for u in sublist])
     print("cov2", cov)
-    cov=len(cov)
-    print("covr", cov)
+    cov = len(cov)
     Noused = sum(state_best)
-    other = sum(state)
     print("iterations:", k, "PSUs used:", Noused,"covered:", cov, "Items in order:", goal)
     return state_best, Noused, li
 
