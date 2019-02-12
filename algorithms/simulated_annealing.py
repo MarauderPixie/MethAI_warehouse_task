@@ -20,8 +20,6 @@ for line in open("problem1.txt"):
         warehouse.append(psu)
 stock = warehouse[0] #the first line, what is in stock
 warehouse = warehouse[2:] #now we have a list of the psus
-#(warehouse[0])
-#print(stock)
 
 #2. open the order11, store in list
 for item in open("order11.txt"):
@@ -30,14 +28,12 @@ for item in open("order11.txt"):
 #3. open the order12
 for item in open("order12.txt"):
     order12 = item.split(" ")
-    #order_new = order12[2:]
 
 # Dictionary items to numbers
 dictionary_stock = {}
 i: int
 for i in range(len(stock)):
-    dictionary_stock[stock[i]] = i+1
-#(dictionary_stock)
+    dictionary_stock[stock[i]] = i
 
 # convert the items in the PSUs to Numbers.
 def replace_matched_PSU(word_list, dictionary):
@@ -75,8 +71,7 @@ i: int
 for i in range(len(psu_index)):
     dictionary_rel_PSU[i] = psu_index[i]
 
-print(dictionary_rel_PSU)
-def PSU_used(state):
+def PSU_used(S):
     cov = []
     for i in range(len(S)):
         if S[i] == 1:
@@ -86,7 +81,7 @@ def PSU_used(state):
 def get_item_of_used_PSU(idx): # gets list of index of PSU and what it caries
     new_list = []
     for i in idx:
-        new_list.append((i,NoWarehouse[i]))
+        new_list.append((i, NoWarehouse[i]))
     return new_list
 
 # get idices of PSUs with more than one item
@@ -117,27 +112,19 @@ def get_fitness(S, R):
     cov = get_covered_items(S, R)
     covered = set([item for sublist in cov for item in sublist]) #flattens list of list and throws out duplicats
     y = sum(S) #number of PSUs used
-    fit = len(covered) - (0.9 * y) #fit is the number of covered items minus the number of PSUs
+    fit = len(covered) - (0.9* y) #fit is the number of covered items minus the number of PSUs
     return fit
 
 def get_neighbors(test):
     nhb = test.copy()
     x = random.choice(range(0, len(nhb) - 1))
     y = random.choice(range(0, len(nhb) - 1))
-    u = random.choice(range(0, len(nhb) - 1))
     z = np.random.choice([0, 1], 1)
-    if x > (0.4*len(nhb)):
-        f = random.choice(range(0, len(cool_psu) - 1))
-        n = cool_psu[f]
-        nhb[n] = 1
-    else:
-        nhb[x] = 1
-
-    nhb[u] = 0
+    nhb[x] = 0
     if z == 0:
         nhb[y] = 0
     else:
-        nhb[y] = 0
+        nhb[y] = 1
     return nhb
 
 def make_move(state, R, T):
@@ -145,7 +132,6 @@ def make_move(state, R, T):
     current = get_fitness(state, R)
     new = get_fitness(nhb, R)
     delta = new - current
-    print("state: ", get_fitness(state, R))
 
     if delta > 0:
         return nhb
@@ -165,19 +151,19 @@ def simulated_annealing(R,O): #A= relevant, O = order
     while T > 1e-3:
         state = make_move(state, R, T)
         if get_fitness(state, R) > get_fitness(state_best, R):
-            state_best = state.copy() 
-        print("best", get_fitness(state_best, R))
+            state_best = state.copy()
         T = update_temperature(T)
         k += 1
-    index = PSU_used(best_state) # index of used PSUs
-    idxPSU = convert_item_in_order(index,dictionary_rel_PSU)
-    li = get_items_of_used_PSU(idxPSU) # list of index of PSU and what it caries
+    index = PSU_used(state_best)  # index of used PSUs
+    idxPSU = convert_item_in_order(index, dictionary_rel_PSU)
+    li = get_item_of_used_PSU(idxPSU)  # list of index of PSU and what it caries
     cov = get_covered_items(state_best, R)
+    print(cov)
     cov = set([u for sublist in cov for u in sublist])
-    print("cov2", cov)
-    cov = len(cov)
+    cov=len(cov)
+    print("covr", cov)
     Noused = sum(state_best)
-    print("iterations:", k, "PSUs used:", Noused,"covered:", cov, "Items in order:", goal)
+    print("iterations:", k, "PSUs used:", Noused,"covered:", cov, "Items in order:", goal, "items", li)
     return state_best, Noused, li
 
 simulated_annealing(relevant,NoOrder12)
