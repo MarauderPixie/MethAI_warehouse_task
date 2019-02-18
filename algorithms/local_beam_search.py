@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import copy
 import math
 ##################################################
 ######important importing#########################
@@ -106,6 +107,7 @@ class BeamSearch:
         self.warehouse = warehouse
         self.order = order
         self.beam_width = 3 #TODO do not hardcode this
+        self.relevant_units = self.prune()
 
     #keep only the PSUs that contain at least one of the items in the order, with only the relevant item in them
     #equivalent to get_relevant_psus()
@@ -132,21 +134,19 @@ class BeamSearch:
         cov = self.get_covered_items(state, relevant)
         covered = set([item for sublist in cov for item in sublist])  # flattens list of list and throws out duplicats
         y = sum(state)  # number of PSUs used
-        fit = len(covered) - (0.9 * y)  # fit is the number of covered items minus the number of PSUs
-        return fit
+        fit = round(len(covered) - (0.9 * y), 3) # fit is the number of covered items minus the number of PSUs
+        return (len(covered),fit)
 
 
-    #neighborhood is obtained by looking at an n-window distance from the PSU units already retrieved in that state
+    #neighborhood is obtained by randomly picking units from within an n-window from the PSU units already retrieved in that state
     def get_neighbors(self, states, relevant):
         neighborhood = []
         window = 3
-
         for state in states:
             #indices of the units that contain the relevant items
             indices = [index for index, value in enumerate(state) if value == 1]
-
             for i in range(self.beam_width):
-                succesor = state[:]
+                succesor = copy.deepcopy(state)
                 #for each relevant unit, look at the units in an n-window around it and randomly change some of them
                 for index in indices:
                     if index - window > 0 and index + window < len(relevant)-1:
@@ -158,21 +158,136 @@ class BeamSearch:
         return neighborhood
 
 
-    def beam_search(self, relevant, order):
-       #k_current - select k random states
-       #start_state = random.sample(self.prune(), self.beam_width)
-       L = len(relevant)
-       goal = len(order)
-       print(goal)
-       #start with 3 random states
-       init_states = [np.random.choice([0,1], size=(L,), p=[1 - len(order) / L, len(order) / L]) for i in range(self.beam_width)]
-       print("len", len(self.get_neighbors(init_states, relevant)))
-       # self.get_neighbors(init_states, relevant)
-       for state in init_states:
-            fitness = self.get_fitness(state, relevant)
-            cov = self.get_covered_items(state, relevant)
-            cov = set([u for sublist in cov for u in sublist])
-            print("cov2", cov, "len:", len(cov))
+    #get best fit
+    def get_smallest_values(self, arr, n):
+        # Sort the given array arr in reverse
+        # order.
+        #arr.sort(reverse=True)
+        best_fit = []
+        arr.sort(key=lambda tup: tup[1][1])
+        # Print the first kth largest elements
+        if len(arr) < n:
+            return  [n[0] for n in arr]
+        else:
+            for i in range(n):
+                best_fit.append(arr[i][0])
+            return best_fit
+
+
+    def find_best_neighbors(self, states):
+        updated_states = []
+        neighbors = self.get_neighbors(states, relevant)
+        for neighbor in neighbors:
+            fitness_neighbor = self.get_fitness(neighbor, relevant)
+            if fitness_neighbor[1] < any([self.get_fitness(state, relevant)[1] for state in states]):
+                updated_states.append((neighbor, fitness_neighbor))
+        # if no neighbor improves the values, return the initial states
+        if not updated_states:
+            print("no neigbor improved value")
+            return states
+        #print(updated_states)
+        best_fit = self.get_smallest_values(updated_states, self.beam_width)
+        print("bestfit", [self.get_fitness(best_state, relevant) for best_state in best_fit])
+        print(12 in [self.get_fitness(best_state, relevant)[0] for best_state in best_fit])
+        return best_fit
+
+    def explore(self, state, step=None):
+        if step is None:
+            step = 1
+        goal = len(self.order)
+        best_neighbors = self.find_best_neighbors(state)
+        if goal in [self.get_fitness(best_state, relevant)[0] for best_state in best_neighbors] or step == 10:
+            goal_states = []
+            for b in best_neighbors:
+                if self.get_fitness(b, relevant)[0] == goal:
+                    goal_states.append(self.get_fitness(b, relevant)[1])
+            print("fouund best", best_neighbors[goal_states.index(min(goal_states))])
+        else:
+            step += 1
+            self.explore(best_neighbors, step) #TODO this is the wrooongngnngng function
+
+    def beam_search(self):
+        L = len(relevant)
+        goal = len(self.order)
+        init_states = [np.random.choice([0, 1], size=(L,), p=[1 - goal / L, goal / L]) for i in range(self.beam_width)]
+        print(self.explore(init_states))
+# def explore(self, states, step=None):
+    #     updated_states = []
+    #     if step == None:
+    #         step = 1
+    #     print("step", step)
+    #     neighbors = self.get_neighbors(states, relevant)
+    #     for neighbor in neighbors:
+    #         fitness_neighbor = self.get_fitness(neighbor, relevant)
+    #         if fitness_neighbor[1] < any([self.get_fitness(state, relevant)[1] for state in states]):
+    #             updated_states.append((neighbor, fitness_neighbor))
+    #     #if no neighbor improves the values, return the initial states
+    #     if not updated_states:
+    #         print("no neigbor improved value")
+    #         return states
+    #
+    #     best_fit = self.get_smallest_values(updated_states, self.beam_width)
+    #     print("bestfit", [self.get_fitness(best_state, relevant) for best_state in best_fit])
+    #     print(12 in [self.get_fitness(best_state, relevant)[0] for best_state in best_fit])
+    #     if 12 in [self.get_fitness(best_state, relevant)[0] for best_state in best_fit] or step == 10:
+    #         for b in best_fit:
+    #             # print(self.get_fitness(b, relevant))
+    #             if self.get_fitness(b, relevant)[0] == 12:
+    #                 print("found best")
+    #     else:
+    #         step += 1
+    #         self.explore(best_fit, step)
+    #
+
+
+    # def beam_search(self, relevant, order):
+    #     L = len(relevant)
+    #     goal = len(order)
+    #     print(goal)
+    #     print(order)
+    #     #start with 3 random states
+    #     init_states = [np.random.choice([0,1], size=(L,), p=[1 - len(order) / L, len(order) / L]) for i in range(self.beam_width)]
+    #     # self.explore(init_states)
+    #     self.find_best_neighbors(init_states)
+        # neighbors = self.get_neighbors(init_states, relevant)
+        # steps = 0
+        # updated_states = []
+        # print("fit initial states", [self.get_fitness(state, relevant)[1] for state in init_states])
+        # for neighbor in neighbors:
+        #     fitness = self.get_fitness(neighbor, relevant)
+        #     #if any neighbor is a better fit than the current state
+        #     if fitness[1] < any([self.get_fitness(state, relevant)[1] for state in init_states]):
+        #         if fitness[0] == 12:
+        #             return neighbor
+        #         else:
+        #         # print("better", self.get_fitness(neighbor, relevant))
+        #             updated_states.append((neighbor, fitness[1]))
+        #             print("covered items", fitness[0], fitness[1])
+        # best_fit = self.get_smallest_values(updated_states, self.beam_width)
+        # print("best fits", best_fit)
+        # new_neighbors = self.get_neighbors(best_fit, relevant)
+        # print("len neigh", len(new_neighbors))
+        #
+        # for state in init_states:
+        #     covered_items, current_state = self.get_fitness(state, relevant)
+        #     #print("state", current_state, "covered", covered_items)
+        #     for neighbor in neighbors:
+        #         new_covered, new_state = self.get_fitness(neighbor, relevant)
+        #         #print(current_state, new_state)
+        #         if new_state < current_state:
+        #             updated_states.append(neighbor)
+        #             # print("new", new_state)
+        #         else:
+        #             updated_states.append(state)
+        #         cov = self.get_covered_items(neighbor, relevant)
+        #         cov = set([u for sublist in cov for u in sublist])
+        #         #print("state", cov, "len:", len(cov), "fitness:", new_state)
+
+       # for neighbor in neighbors:
+       #      fitness = self.get_fitness(neighbor, relevant)
+       #      cov = self.get_covered_items(state, relevant)
+       #      cov = set([u for sublist in cov for u in sublist])
+       #      print("neighbor", cov, "len:", len(cov), "fitness:", fitness)
     # state_0 = np.random.choice([0, 1], size=(L,),
     #                            p=[1 - len(O) / L, len(O) / L])  # rendom array 0=PSU not used 1=PSUused
 
@@ -213,4 +328,4 @@ print("all psus with the items inside:", bs.warehouse)
 print("order:", bs.order)
 print("prune:", len(bs.prune()), bs.prune())
 
-bs.beam_search(relevant, bs.order)
+bs.beam_search()
