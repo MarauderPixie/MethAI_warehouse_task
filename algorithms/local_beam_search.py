@@ -6,7 +6,7 @@ from warehouse import Warehouse
 #TODO store indices of psus for access at the end
 #TODO select neighbors
 class BeamSearch(Warehouse):
-    def __init__(self, filepath_warehouse, filepath_order, beam_width):
+    def __init__(self, filepath_warehouse, filepath_order, beam_width = 3):
         self.warehouse = Warehouse(filepath_warehouse, filepath_order)
         self.beam_width = beam_width
 
@@ -22,7 +22,7 @@ class BeamSearch(Warehouse):
         cov = self.get_covered_items(state)
         covered = set([item for sublist in cov for item in sublist])  # flattens list of list and throws out duplicats
         y = sum(state)  # number of PSUs used
-        fit = round(len(covered) - (0.9 * y), 3) # fit is the number of covered items minus the number of PSUs
+        fit = round(len(covered) - (1.2 * y), 3) # fit is the number of covered items minus the number of PSUs
         return (len(covered),fit)
 
     def get_nhb(self, states):
@@ -105,54 +105,41 @@ class BeamSearch(Warehouse):
             step += 1
             return self.explore(best_neighbors, step)
 
-    def PSU_used(self, S):
-        cov = []
-        for i in range(len(S)):
-            if S[i] == 1:
-                cov.append(i)
-        return cov
 
-    def convert_item_in_order(self, word_list, dictionary):
-        new_list = [dictionary.get(item) for item in word_list]
-        return new_list
-
-    def get_item_of_used_PSU(self, idx):  # gets list of index of PSU and what it caries
-        new_list = []
-        for i in idx:
-            new_list.append((i, self.warehouse.encoded_warehouse[i]))
-        return new_list
-
-    def dic_rel_psu(self):
-        psu_index = [i for i, j in enumerate(self.warehouse.stock) if j]
-
-        dictionary_rel_PSU = {}
-        i: int
-        for i in range(len(psu_index)):
-            dictionary_rel_PSU[i] = psu_index[i]
-        return dictionary_rel_PSU
+        # takes a state as an input and returns the corresponding PSUs with their indices and the items they contain
+    def translate_state(self, state):  # TODO rename retrieve_psus() or smth?
+        retrieved = []
+        for i in range(len(state)):
+            if state[i] == 1:
+                index = self.warehouse.indices_relevant_units[i]
+                items = self.warehouse.encoded_warehouse[index]
+                retrieved.append((index, items))
+        return retrieved
 
     def beam_search(self):
         L = len(self.warehouse.relevant_units)
         init_states = [np.random.choice([0, 1], size=(L,), p=[1 - self.warehouse.goal / L, self.warehouse.goal / L]) for i in range(self.beam_width)]
         state_best = self.explore(init_states)
-        index = self.PSU_used(state_best)  # index of used PSUs
-        idxPSU = self.convert_item_in_order(index, self.dic_rel_psu())
-        li = self.get_item_of_used_PSU(idxPSU)  # list of index of PSU and what it caries
-        print(li)
-
+        # index = self.PSU_used(state_best)  # index of used PSUs
+        # idxPSU = self.convert_item_in_order(index, self.dic_rel_psu())
+        # li = self.get_item_of_used_PSU(idxPSU)  # list of index of PSU and what it caries
+        # print(li)
+        #
         cov = self.get_covered_items(state_best)
-        print(cov)
+        # print(cov)
         cov = set([u for sublist in cov for u in sublist])
         cov = len(cov)
-        print("covr", cov)
+        # print("covr", cov)
         Noused = sum(state_best)
-        print("PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", li)
+        print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.translate_state(state_best))
         # for l in li:
         #     self.warehouse.decode_items(self.warehouse.stock_count,l[1])
 
 
-# path_w = "/../data/problem1.txt"
-# path_o = "/../data/order11.txt"
+# path_w = "../data/problem1.txt"
+# path_o = "../data/order11.txt"
+# bs = BeamSearch(path_w, path_o)
+# bs.beam_search()
 # w = warehouse.Warehouse(path_w,path_o)
 # # bs = BeamSearch(w)
 # # bs = BeamSearch(NoWarehouse, NoOrder12)

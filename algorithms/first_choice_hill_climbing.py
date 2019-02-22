@@ -15,18 +15,18 @@ import math
 
 #1. read in the text file with the warehouse information
 warehouse = []
-for line in open("problem1.txt"):
+for line in open("../data/problem1.txt"):
         psu = line.strip().split(" ")
         warehouse.append(psu)
 stock = warehouse[0] #the first line, what is in stock
 warehouse = warehouse[2:] #now we have a list of the psus
 
 #2. open the order11, store in list
-for item in open("order11.txt"):
+for item in open("../data/order11.txt"):
     order11 = item.split(" ")
 
 #3. open the order12
-for item in open("order12.txt"):
+for item in open("../data/order12.txt"):
     order12 = item.split(" ")
 
 # Dictionary items to numbers

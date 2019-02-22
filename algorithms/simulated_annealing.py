@@ -57,7 +57,7 @@ class SimulatedAnnealing(Warehouse):
 
 
     # takes a state as an input and returns the corresponding PSUs with their indices and the items they contain
-    def translate_state(self, state): #TODO rename retrieve_psus() or smth?
+    def translate_state(self, state): #TODO rename retrieve_psus() or smth? lookup_state and move into Warehouse?
         retrieved = []
         for i in range(len(state)):
             if state[i] == 1:
@@ -88,16 +88,16 @@ class SimulatedAnnealing(Warehouse):
             temperature = self.update_temperature(temperature)
             step += 1
 
-        cov = self.get_fitness(state_best)
+        cov = self.get_fitness(state_best)[0]
         print("iterations:", step, "PSUs used:", sum(state_best),"covered:", cov, "Items in order:", goal, "items", self.translate_state(state_best))
         # return state_best, sum(state_best), self.translate_state(state_best)
 
 
-path_w = "../data/problem1.txt"
-path_o = "../data/order11.txt"
-sa = SimulatedAnnealing(path_w,path_o)
-sa.simulated_annealing()
-
+# path_w = "../data/problem1.txt"
+# path_o = "../data/order11.txt"
+# sa = SimulatedAnnealing(path_w,path_o)
+# sa.simulated_annealing()
+#
 
 
         # ##################################################

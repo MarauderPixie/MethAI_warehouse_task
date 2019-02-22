@@ -1,11 +1,11 @@
 class Warehouse:
     def __init__(self, filepath_warehouse, filepath_order):
         self.stock, units = self.fill_up_warehouse(filepath_warehouse)
-        self.order = self.read_in_order(filepath_order)
-        self.goal = len(self.order)
         self.stock_count = self.get_stock_count(self.stock)
         self.encoded_warehouse = [self.encode_items(self.stock_count, unit) for unit in units]
+        self.order = self.read_in_order(filepath_order)
         self.encoded_order = self.encode_items(self.stock_count, self.order)
+        self.goal = len(self.order)
         self.indices_relevant_units, self.relevant_units = self.prune()
 
     # Helper functions to read in files, store and encode the input
@@ -46,8 +46,6 @@ class Warehouse:
         for i in range(1, len(encoded_items_list)):
             print(list(stock.keys())[list(stock.values()).index(encoded_items_list[i])])
 
-
-    # TODO dictionary_rel_PSU
 
     # keep only the PSUs that contain at least one of the items in the order, with only the relevant item in them
     # returns a list whose length corresponds to the sum of all units containing relevant items
