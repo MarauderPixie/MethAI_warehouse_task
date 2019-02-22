@@ -10,7 +10,6 @@ from algorithms.local_beam_search import BeamSearch
 # TODO [] bind all algorithms to each option button
 # TODO [] display stock and order (open file? print? open popup?)
 # TODO [] add test cases for 1. no file selected 2. missing arguments for algorithm option 3. missing warehouse or order file
-# TODO [] fix automatic upload file dialog on startup
 # TODO [] add some information about what each button does
 # TODO [] find nice way to display output of each algorithm (messsage popup?)
 # TODO [] rename variables and give them better descriptive names
@@ -30,8 +29,8 @@ class GUI:
         #first frame that should somehow show the stock
         self.firstframe = tk.Frame(root)        #TODO frame = Frame(root, width=100, height=100)
         self.firstframe.pack()
-        self.stock_but = tk.Button(self.firstframe, text="here you can have a look at our stock", command=self.view_stock)
-        self.stock_but.pack(side=tk.TOP)
+        #self.stock_but = tk.Button(self.firstframe, text="here you can have a look at our stock", command=self.view_stock)
+        #self.stock_but.pack(side=tk.TOP)
         # second frame to select an order
         self.secframe = tk.Frame(root)
 
@@ -95,33 +94,45 @@ class GUI:
     def change_states(self, variable):
         if variable == "Parallel Hill-Climbing" or variable == "Local Beam Search":
             print(variable)
-            top = tk.Toplevel()
-            top.title("Enter a number of states")
+            self.top = tk.Toplevel()
+            self.top.title("Enter a number of states")
             v = tk.IntVar()
-            number_button = tk.Entry(top, textvariable = v, text ="select number of states")
-            number_button.pack()
-            go_button = tk.Button(top, text ="Continue", command = lambda: self.states(v))
-            go_button.pack()
+            self.number_button = tk.Entry(self.top, textvariable = v, text ="var")
+            self.number_button.pack()
+            self.go_button = tk.Button(self.top, text ="Enter", command = self.states)
+            self.go_button.pack()
+            self.exit_button = tk.Button(self.top, text = "Close", command = lambda: self.top.destroy())
+            self.exit_button.pack()
 
-
-    def states(self, v):
-        if type(v.get()) == int: #this doesnt work
-            num_state = v.get()
-            print(num_state)
-            self.destroy # this doesnt work
-#        while not v.get().isdigit():
-        else:
-            print("Enter an Integer")
-
+# this function reads in the number of states for Parallel HC and Simulated Annealing
+    def states(self):
+        number = self.number_button.get()
+        #print(number)
+        try:
+            state_numbers = int(number)
+            return state_numbers
+        except ValueError:
+            print("Enter an Integer, please!")
+            return False
 
 
     def start_processing(self):
         print("starting processing")
+        if wh is None: #is not defined
+            self.stoptop = tk.Toplevel()
+            self.stoptop.title("Error!")
+            self.errorbutton = tk.Button(self.stoptop, text = "Ooops, you forgot to load your warehouse, try again!", command = lambda: self.stoptop.destroy())
+            self.errorbutton.pack()
+        elif order is None:
+            self.top = tk.Toplevel()
+            self.top.title("Error!")
+            self.errorbutton = tk.Button(self.top, text = "Ooops, you forgot to load your warehouse, try again!",command= lambda: self.top.destroy())
+            self.errorbutton.pack()
         self.bs = BeamSearch(self.warehouse_file, self.order_file, 3)
         self.bs.beam_search()
 
     ##define here where to open the file,
-    def view_stock(self):
+    #def view_stock(self):
         startfile("stock.txt")
         #TODO open file?
 
@@ -151,6 +162,7 @@ class GUI:
         if order_file:
             print('Selected:', order_file.name)
             self.order_file =  order_file.name
+            order = order_file.read()
 
 
 ################################## #TODO add this to ask user before quitting
