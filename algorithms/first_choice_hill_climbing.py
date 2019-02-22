@@ -1,150 +1,109 @@
-"""Progamming Task Methods of AI"""
+"""
+
+"""
+
 import random
 import numpy as np
-import math
-##################################################
-######important importing#########################
-#import qt
-##################################################
-#GOAL: we want a psu carry as many items possible of our order
+from warehouse import Warehouse
 
-# find items in problem:
-# first line all the items there are but without numbers in stock
-# each line is one psu and whtas inside, seperated by comma
+class FirstChoiceHillClimbing(Warehouse):
+    def __init__(self, filepath_warehouse, filepath_order):
+        self.warehouse = Warehouse(filepath_warehouse, filepath_order)
 
+    '''
+        return a list of all items from the order covered in the particular state
+        for the goal to be reached, number of covered items must be equal to number of items in order
+    '''
+    def get_covered_items(self, state):
+        items = []
+        # if an index of the state is 1, retrieve the items from psu with the same index
+        for i in range(len(state)):
+            if state[i] == 1:
+                items.append(self.warehouse.relevant_units[i])
+        # flatten list of list and throw out duplicats
+        items = set([item for sublist in items for item in sublist])
 
-#1. read in the text file with the warehouse information
-warehouse = []
-for line in open("../data/problem1.txt"):
-        psu = line.strip().split(" ")
-        warehouse.append(psu)
-stock = warehouse[0] #the first line, what is in stock
-warehouse = warehouse[2:] #now we have a list of the psus
+        return items
 
-#2. open the order11, store in list
-for item in open("../data/order11.txt"):
-    order11 = item.split(" ")
+    '''
+        calculate the cost of a state 
+        cost is the number of covered items in that state minus the number of PSUs used 
+    '''
+    def get_cost(self, state):
+        covered_items = self.get_covered_items(state)
+        units_used = sum(state)
+        cost = len(covered_items) - units_used
 
-#3. open the order12
-for item in open("../data/order12.txt"):
-    order12 = item.split(" ")
+        return cost
 
-# Dictionary items to numbers
-dictionary_stock = {}
-i: int
-for i in range(len(stock)):
-    dictionary_stock[stock[i]] = i
+    '''
+        
+    '''
+    def get_neighbor(self, state):
+        nhb = state.copy()
+        x = random.choice(range(0, len(nhb) - 1))
+        y = random.choice(range(0, len(nhb) - 1))
+        u = random.choice(range(0, len(nhb) - 1))
+        z = np.random.choice([0, 1], 1)
+        nhb[x] = 0
+        nhb[u] = 0
+        if z == 0:
+            nhb[y] = 0
+        else:
+            nhb[y] = 1
 
-# convert the items in the PSUs to Numbers.
-def replace_matched_PSU(word_list, dictionary):
-    new_list = [[dictionary.get(item, item) for item in lst] for lst in word_list]
-    return new_list
-NoWarehouse = replace_matched_PSU(warehouse, dictionary_stock)
-#print(NoWarehouse)
+        return nhb
 
-# convert the items in the order to Numbers
-def convert_item_in_order(word_list, dictionary):
-    new_list = [dictionary.get(item) for item in word_list]
-    return new_list
-NoOrder11 = convert_item_in_order(order11,dictionary_stock)
-NoOrder12 = convert_item_in_order(order12,dictionary_stock)
+    '''
+        given a state, return a tuple containing the corresponding PSU and a list of the items inside it
+    '''
+    def retrieve_units(self, state):  # TODO rename retrieve_psus() or smth?
+        retrieved = []
+        for i in range(len(state)):
+            if state[i] == 1:
+                index = self.warehouse.indices_relevant_units[i]
+                items = self.warehouse.encoded_warehouse[index]
+                retrieved.append((index, items))
+        return retrieved
 
+    '''
+        given a state, look at the nearest neighbor and return it if it improves the cost value 
+        if no neighbor improves it, return the initial state
+    '''
+    def make_move_hill(self, state):
+        neighbor = self.get_neighbor(state)
+        cost_current = self.get_cost(state)
+        cost_neighbor = self.get_cost(neighbor)
 
-## define function to get only those PSUs containing at least one of the ordered items
-def get_relevant_psus(order, PSU):
-    psu_list = []
-    for rob in PSU:
-        bob = [item for item in rob if item in order]
-        psu_list.append(bob)
-    return psu_list
+        return neighbor if cost_current <= cost_neighbor else state
 
-## call function on order
-relevant = get_relevant_psus(NoOrder12, NoWarehouse)
+    '''
+        perform first choice hill climbing
+        return 
+    '''
 
-## get indices of relevant PSUs and remove "empty" PSUs from list
-psu_index = [i for i, j in enumerate(relevant) if j]
-relevant = list(filter(None, relevant))
+    def first_choice_hill_climbing(self):  # R= relevant, O = order
+        l = len(self.warehouse.relevant_units)
+        # generate the initial state as an array of 1s and 0s with probability TODO how was p chosen
+        initial_state = np.random.choice([0, 1], size=(l,),
+                                 p=[1 -  self.warehouse.goal / l,  self.warehouse.goal / l])  # rendom array 0=PSU not used 1=PSUused
+        step = 0
+        # keep exploring until the number of covered items corresponds to the number of items in order
+        while (len(self.get_covered_items(initial_state)) != self.warehouse.goal):
+            initial_state = self.make_move_hill(initial_state)
+            step += 1
 
-#dictionary relevant PSU
-dictionary_rel_PSU = {}
-i: int
-for i in range(len(psu_index)):
-    dictionary_rel_PSU[i] = psu_index[i]
-
-def PSU_used(S):
-    cov = []
-    for i in range(len(S)):
-        if S[i] == 1:
-            cov.append(i)
-    return cov
-
-def get_item_of_used_PSU(idx): # gets list of index of PSU and what it caries
-    new_list = []
-    for i in idx:
-        new_list.append((i, NoWarehouse[i]))
-    return new_list
-
-# ----------- Hill Climbing -----------------
-
-def get_covered_items_hill(state, R):
-    cov = []
-    for i in range(len(state)):
-        if state[i] == 1:
-            cov.append(R[i])
-    cov = set([item for sublist in cov for item in sublist])  # flattens list of list and throws out duplicats
-    print(cov)
-    return cov
-
-def get_fitness_hill(state, R):
-    covered = get_covered_items_hill(state, R)
-    y = sum(state)  # number of PSUs used
-    fit = len(covered) - y  # fit is the number of covered items minus the number of PSUs
-    return fit
+        best_state = initial_state
+        retrieved_units = self.retrieve_units(best_state)
+        retrieved_items = len(self.get_covered_items(best_state))
+        number_used_units = sum(best_state)
+        print("iterations:", step, "PSUs used:", number_used_units, "covered:", retrieved_items, "Items in order:", self.warehouse.goal, "items", retrieved_units)
 
 
-def get_neighbors_hill(state):
-    nhb = state.copy()
-    x = random.choice(range(0, len(nhb) - 1))
-    y = random.choice(range(0, len(nhb) - 1))
-    u = random.choice(range(0, len(nhb) - 1))
-    z = np.random.choice([0, 1], 1)
-    nhb[x] = 0
-    nhb[u] = 0
-    if z == 0:
-        nhb[y] = 0
-    else:
-        nhb[y] = 1
 
-    return nhb
-
-def make_move_hill(state, R):
-    nhb = get_neighbors_hill(state)
-    current = get_fitness_hill(state, R)
-    new = get_fitness_hill(nhb, R)
-    return nhb if current <= new else state
+# path_w = "../data/problem1.txt"
+# path_o = "../data/order11.txt"
+# bs = FirstChoiceHillClimbing(path_w, path_o)
+# bs.first_choice_hill_climbing()
 
 
-def first_choice_hill_climbing(R,O):  #R= relevant, O = order
-    L = len(R)
-    goal = len(O)
-    state = np.random.choice([0, 1], size=(L, ), p=[1-len(O)/L, len(O)/L])  #rendom array 0=PSU not used 1=PSUused
-    k = 0
-
-    while (len(get_covered_items_hill(state, R)) != goal):
-        state = make_move_hill(state, R)
-        k += 1
-
-
-    index = PSU_used(state)  # index of used PSUs
-    idxPSU = convert_item_in_order(index, dictionary_rel_PSU)
-    li = get_item_of_used_PSU(idxPSU)  # list of index of PSU and what it caries
-    cov = get_covered_items_hill(state, R)
-    print(cov)
-    cov = len(cov)
-    print("covr", cov)
-    Noused = sum(state)
-    print("iterations:", k, "PSUs used:", Noused,"covered:", cov, "Items in order:", goal, "items", li)
-
-    return state, Noused, li
-
-first_choice_hill_climbing(relevant,NoOrder12)
