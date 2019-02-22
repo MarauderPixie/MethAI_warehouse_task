@@ -50,7 +50,7 @@ class GUI:
         self.psuus = tk.Label(self.forframe, text="you used ... psus")
         self.psuus.pack(side=tk.BOTTOM)
         #load warehouse
-        self.button = tk.Button(self.secframe, text='Load your warehouse here', command=self.upload_warehouse_file)
+        self.button = tk.Button(self.secframe, text='Load your warehouse here', command= self.upload_warehouse_file)
         self.button.pack()
         # load order
         self.buttonorder = tk.Button(self.secframe, text='Load your order here', command=self.upload_order_file)
@@ -67,19 +67,53 @@ class GUI:
         self.variable = tk.StringVar(self.secframe)
         self.variable.set(OPTIONS[0])  # default value
 
-        self.algobut = tk.OptionMenu(self.secframe, self.variable, *OPTIONS)
+        self.algobut = tk.OptionMenu(self.secframe, self.variable, *OPTIONS, command = self.change_states)
         self.algobut.pack()
+    #    self.variable.trace("w", self.change_states)
+    #    if self.variable.get() == "Parallel Hill-Climbing":      # About window
+    #        top.title("Parallel Hill-Climbing")
+    #        toplabel = Label(top,text= "Select number of states")
+    #        toplabel.pack()
+    #        button = tk.Entry(top)
+    #        button.grid()
+    #        top.grid()
+    #    if self.variable.get() == "Local Beam Search":
+    #        top
 
-        if self.algobut == OPTIONS[2] or self.algobut == OPTIONS[4]:
-            stat_num = tk.Entry(self.secframe, text="select number of states: ")
-            stat_num.pack()
-        # hier fehlt die verknüfung und für parallel hill,
+        #if self.algobut == OPTIONS[2] or self.algobut == OPTIONS[4]:
+        #    stat_num = tk.Entry(self.secframe, text="select number of states: ")
+        #    stat_num.pack()
+        #self.select_steps = tk.Entry(self.secframe, text = "select number of steps")
+        #self.select_steps.pack()
         # local beam search brauchen wir config numb of states
-        sel_order = self.upload_warehouse_file()
-        # final start button
-        self.orderbut = tk.Button(self.forframe, text="Start Order", fg="red", command=self.start_processing)
 
+        #sel_order = self.upload_warehouse_file() #thats why it is always opening a window before anything
+        # final start button
+        self.orderbut = tk.Button(self.forframe, text="Start Order", fg="red", command= self.start_processing)
         self.orderbut.pack()
+
+    def change_states(self, variable):
+        if variable == "Parallel Hill-Climbing" or variable == "Local Beam Search":
+            print(variable)
+            top = tk.Toplevel()
+            top.title("Enter a number of states")
+            v = tk.IntVar()
+            number_button = tk.Entry(top, textvariable = v, text ="select number of states")
+            number_button.pack()
+            go_button = tk.Button(top, text ="Continue", command = lambda: self.states(v))
+            go_button.pack()
+
+
+    def states(self, v):
+        if type(v.get()) == int: #this doesnt work
+            num_state = v.get()
+            print(num_state)
+            self.destroy # this doesnt work
+#        while not v.get().isdigit():
+        else:
+            print("Enter an Integer")
+
+
 
     def start_processing(self):
         print("starting processing")
