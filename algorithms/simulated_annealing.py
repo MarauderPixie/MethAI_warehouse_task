@@ -93,11 +93,11 @@ class SimulatedAnnealing(Warehouse):
         # return state_best, sum(state_best), self.translate_state(state_best)
 
 
-# path_w = "../data/problem1.txt"
-# path_o = "../data/order11.txt"
-# sa = SimulatedAnnealing(path_w,path_o)
-# sa.simulated_annealing()
-#
+path_w = "../data/problem1.txt"
+path_o = "../data/order11.txt"
+sa = SimulatedAnnealing(path_w,path_o)
+sa.simulated_annealing()
+
 
 
         # ##################################################
