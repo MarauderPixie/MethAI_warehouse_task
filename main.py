@@ -80,6 +80,14 @@
 # orderbut.pack()
 # root.mainloop()
 
+# TODO [] refactor fc hill climbing
+# TODO [] refactor hill climbing
+# TODO [] refactor beam search
+# TODO [] refactor rr hill climbing
+# TODO [] refactor sim annealing
+# TODO [] bind main() to gui
+# TODO [] refactor gui
+# TODO [] add comments
 from algorithms import local_beam_search, simulated_annealing
 
 def main():
