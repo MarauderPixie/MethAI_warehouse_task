@@ -148,8 +148,11 @@ class BeamSearch(Warehouse):
         cov = self.get_fitness(state_best)[0]
 
         Noused = sum(state_best)
-        print("order", self.warehouse.encoded_order)
-        print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.translate_state(state_best))
+                print("order:", self.warehouse.encoded_order)
+        print("beam search PSUs used:", Noused, 
+              "\ncovered:", cov, 
+              "\nItems in order:", self.warehouse.goal, 
+              "\nitems", self.translate_state(state_best))
         # for l in li:
         #     self.warehouse.decode_items(self.warehouse.stock_count,l[1])
 
