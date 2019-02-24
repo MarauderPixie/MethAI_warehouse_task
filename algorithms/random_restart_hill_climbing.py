@@ -23,8 +23,8 @@ class RandomRestart(Warehouse):
         return items
 
     '''
-        calculate the cost of a state 
-        cost is the number of covered items in that state minus the number of PSUs used 
+        calculate the cost of a state
+        cost is the number of covered items in that state minus the number of PSUs used
     '''
 
     def get_cost(self, state):
@@ -100,10 +100,10 @@ class RandomRestart(Warehouse):
         retrieved_items = len(self.get_covered_items(state))
 
         number_used_units = sum(state)
-        print("iterations:", k, 
+        print("iterations:", k,
               "\nPSUs used:", number_used_units,
-              "\ncovered:", retrieved_items, 
-              "\nItems in order:", self.warehouse.goal, 
+              "\ncovered:", retrieved_items,
+              "\nItems in order:", self.warehouse.goal,
               "\nContent of used PSUs:", retrieved_units)
         return(number_used_units)
 
@@ -115,7 +115,7 @@ class RandomRestart(Warehouse):
                 state = reset
         return state
 
-path_w = "data/problem1.txt"
-path_o = "data/order11.txt"
-rrhc = RandomRestart(path_w, path_o)
-rrhc.random_restart(Noresets = 0)
+#path_w = "data/problem1.txt"
+#path_o = "data/order11.txt"
+#rrhc = RandomRestart(path_w, path_o)
+#rrhc.random_restart(Noresets = 0)
