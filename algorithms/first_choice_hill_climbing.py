@@ -33,7 +33,7 @@ class FirstChoiceHillClimbing(Warehouse):
         return cost
 
     '''
-
+    
     '''
     def get_neighbor(self, state):
         nhb = state.copy()
@@ -111,7 +111,7 @@ class FirstChoiceHillClimbing(Warehouse):
                   "units" : [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
                   "iterations" : step,
                   "covered_items" : retrieved_items,
-                  "goal" : self.goal
+                  "goal" : self.warehouse.goal
         }
         print(output.items())
         return output

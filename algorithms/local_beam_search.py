@@ -21,14 +21,21 @@ class BeamSearch(Warehouse):
             if state[i] == 1:
                 items.append(self.warehouse.relevant_units[i])
         # flatten list of list and throw out duplicats
+        print("items", set([item for sublist in items for item in sublist]))
         items = set([item for sublist in items for item in sublist])
 
         return items
+    # def get_covered_items(self, state):
+    #     cov = []
+    #     for i in range(len(state)):
+    #         if state[i] == 1:
+    #             cov.append(self.warehouse.relevant_units[i])
+    #     return cov
 
 
     def get_fitness(self, state):
-        cov = self.get_covered_items(state)
-        covered = set([item for sublist in cov for item in sublist])  # flattens list of list and throws out duplicats
+        covered = self.get_covered_items(state)
+        # covered = set([item for sublist in cov for item in sublist])  # flattens list of list and throws out duplicats
         y = sum(state)  # number of PSUs used
         # by multiplying y with a number we can set a bias for the psus/items
         # reducing y means higher weight for number of items
@@ -169,9 +176,9 @@ class BeamSearch(Warehouse):
             print(self.warehouse.decode_items(i[1]))
 
 
-# 
-#
-# path_w = "data/problem1.txt"
-# path_o = "data/order11.txt"
+
+
+# path_w = "../data/problem1.txt"
+# path_o = "../data/order11.txt"
 # bs = BeamSearch(path_w, path_o)
 # bs.beam_search()

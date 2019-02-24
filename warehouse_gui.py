@@ -65,7 +65,7 @@ class GUI:
         ]
 
         self.variable = tk.StringVar(self.secframe)
-        self.variable.set(OPTIONS[0])  # default value
+        self.variable.set("Select an algorithm")  # default value
 
         self.algobut = tk.OptionMenu(self.secframe, self.variable, *OPTIONS, command = self.change_states)
         self.algobut.pack()
