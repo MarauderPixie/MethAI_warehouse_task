@@ -1,4 +1,7 @@
 .idea/
+.vscode/
 data/
 sanity_preserver.ipynb
 .ipynb_checkpoints/sanity_preserver-checkpoint.ipynb
+__pycache__/
+algorithms/__pycache__
