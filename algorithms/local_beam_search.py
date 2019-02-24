@@ -154,10 +154,10 @@ class BeamSearch(Warehouse):
         #     self.warehouse.decode_items(self.warehouse.stock_count,l[1])
 
 
-path_w = "../data/problem1.txt"
-path_o = "../data/order11.txt"
-bs = BeamSearch(path_w, path_o)
-bs.beam_search()
+#path_w = "../data/problem1.txt"
+#path_o = "../data/order11.txt"
+#bs = BeamSearch(path_w, path_o)
+#bs.beam_search()
 # w = warehouse.Warehouse(path_w,path_o)
 # # bs = BeamSearch(w)
 # # bs = BeamSearch(NoWarehouse, NoOrder12)
