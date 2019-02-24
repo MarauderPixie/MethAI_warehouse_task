@@ -3,8 +3,9 @@ from warehouse import Warehouse
 import numpy as np
 
 class RandomRestart(Warehouse):
-    def __init__(self, filepath_warehouse, filepath_order):
+    def __init__(self, filepath_warehouse, filepath_order, number_states):
         self.warehouse = Warehouse(filepath_warehouse, filepath_order)
+        self.number_states = number_states
 
     '''
         return a list of all items from the order covered in the particular state
@@ -107,15 +108,15 @@ class RandomRestart(Warehouse):
               "\nContent of used PSUs:", retrieved_units)
         return(number_used_units)
 
-    def random_restart(self, Noresets):
+    def random_restart(self):
         state = self.hill_climbing()
-        for _ in range(Noresets):
+        for _ in range(self.number_states):
             reset = self.hill_climbing()
             if reset <= state:
                 state = reset
         return state
 
-path_w = "data/problem1.txt"
-path_o = "data/order11.txt"
-rrhc = RandomRestart(path_w, path_o)
-rrhc.random_restart(Noresets = 0)
+# path_w = "../data/problem1.txt"
+# path_o = "../data/order11.txt"
+# rrhc = RandomRestart(path_w, path_o)
+# rrhc.random_restart(Noresets = 0)

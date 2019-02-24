@@ -7,7 +7,7 @@ from algorithms.local_beam_search import BeamSearch
 from algorithms.first_choice_hill_climbing import FirstChoiceHillClimbing
 from algorithms.simulated_annealing import SimulatedAnnealing
 from algorithms.hill_climbing import HillClimbing
-from algorithms.random_restart_hill_climbing import RandomRestartHillClimbing
+from algorithms.random_restart_hill_climbing import RandomRestart
 #from algorithms.hill_climbing import HillClimbing
 # class MainApplication(tk.Frame):
 
@@ -185,8 +185,8 @@ class GUI:
                 self.errorbutton = tk.Button(self.stoptop, text = "Ooops, you forgot to select a number of states, try again!", command = lambda: self.stoptop.destroy())
                 self.errorbutton.pack()
             else:
-                self.rr = RandomRestartHillClimbing(self.warehouse_file, self.order_file, self.state_numbers) #remember, remember TODO
-                output = self.rr.random_restart_hill_climbing()
+                self.rr = RandomRestart(self.warehouse_file, self.order_file, self.state_numbers) #remember, remember TODO
+                output = self.rr.random_restart()
                 self.endtop = tk.Toplevel()
                 self.endtop.title("End of Process")
                 self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] )
