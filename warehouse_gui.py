@@ -47,18 +47,24 @@ class GUI:
 
         # fourth frame with a order now Button
         self.forframe = tk.Frame(root)
-        self.forframe.pack(side=tk.BOTTOM)
+        self.forframe.pack(side=tk.LEFT)
 
-        # fith frame for a reset button
+        # fith frame for exit button
         self.fifframe = tk.Frame(root)
         self.fifframe.pack(side=tk.BOTTOM)
-        self.resetbutton = tk.Button(self.fifframe, text = 'Reset', command = self.refresh)
+
+        #reset button
+        self.resetbutton = tk.Button(self.forframe, text = 'Reset', command = lambda: refresh())
+        self.resetbutton.pack(side =tk.LEFT)
         def refresh():
             self.variable.set("Select an Algorithm")
-            self.number_button.set(0)
-            self.warehouse_file.set("")
-            self.order_file.set("")
+            self.state_numbers = 0
+            self.warehouse_file = ""
+            self.order_file = ""
 
+        #exitbutton
+        self.exitbutton = tk.Button(self.fifframe, text = "Exit", command = lambda: self.master.destroy())
+        self.exitbutton.pack(side = tk.BOTTOM)
         #load warehouse
         self.button = tk.Button(self.secframe, text='Load your warehouse here', command= self.upload_warehouse_file)
         self.button.pack()
@@ -101,7 +107,7 @@ class GUI:
         #sel_order = self.upload_warehouse_file() #thats why it is always opening a window before anything
         # final start button
         self.orderbut = tk.Button(self.forframe, text="Start Order", fg="red", command= self.start_processing)
-        self.orderbut.pack()
+        self.orderbut.pack(side = tk.LEFT)
 
     def change_states(self, variable):
         self.algorithm = variable
@@ -148,25 +154,25 @@ class GUI:
                 self.errorbutton = tk.Button(self.stoptop, text = "Ooops, you forgot to select a number of states, try again!", command = lambda: self.stoptop.destroy())
                 self.errorbutton.pack()
             else:
-                self.bs = BeamSearch(self.warehouse_file, self.order_file, 3) #remember, remember TODO
+                self.bs = BeamSearch(self.warehouse_file, self.order_file, self.state_numbers) #remember, remember TODO
                 self.bs.beam_search()
                 self.endtop = tk.Toplevel()
                 self.endtop.title("End of Process")
-                self.psuused = tk.Label(self.endtop, text = "You used ... PSUs" ) #... add %s total number of psu used
+                self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
                 self.psuused.pack()
-                self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: ..." )# ... add %s list of the identifier number
+                self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: %s they carried the following items" %output["units"] )# ... add %s list of the identifier number
                 self.psu_ident.pack()
                 self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
                 self.endbutton.pack()
 #processing FirstChoiceHillClimbing
         if self.algorithm == "First-Choice Hill-Climbing":
-            self.hc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
-            output = self.hc.first_choice_hill_climbing()
+            self.fc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
+            output = self.fc.first_choice_hill_climbing()
             self.endtop = tk.Toplevel()
             self.endtop.title("End of Process")
             self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
             self.psuused.pack()
-            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: " )# ... add %s list of the identifier number
+            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: %s they carried the following items" %output["units"])# ... add %s list of the identifier number
             #and item stored in which psu
             self.psu_ident.pack()
             self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
@@ -178,40 +184,14 @@ class GUI:
                 self.stoptop.title("Error!")
                 self.errorbutton = tk.Button(self.stoptop, text = "Ooops, you forgot to select a number of states, try again!", command = lambda: self.stoptop.destroy())
                 self.errorbutton.pack()
-                self.bs = BeamSearch(self.warehouse_file, self.order_file, 3) #remember, remember TODO
-                self.bs.random_restart_hill_climbing()
-                self.endtop = tk.Toplevel()
-                self.endtop.title("End of Process")
-                self.psuused = tk.Label(self.endtop, text = "You used ... PSUs" ) #... add %s total number of psu used
-                self.psuused.pack()
-                self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: ..." )# ... add %s list of the identifier number
-                #and item stored in which psu
-                self.psu_ident.pack()
-                self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
-                self.endbutton.pack()
-            if self.algorithm == "Simulated Annealing":
-                self.hc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
-                output = self.hc.first_choice_hill_climbing()
-                self.endtop = tk.Toplevel()
-                self.endtop.title("End of Process")
-                self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
-                self.psuused.pack()
-                self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: " )# ... add %s list of the identifier number
-                #and item stored in which psu
-                self.psu_ident.pack()
-                self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
-                self.endbutton.pack()
-            if self.algorithm == "Hill-Climbing":
-                self.hc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
-                output = self.hc.first_choice_hill_climbing()
             else:
-                self.rr = random_restart_hill_climbing(self.warehouse_file, self.order_file, 3) #remember, remember TODO
+                self.rr = RandomRestartHillClimbing(self.warehouse_file, self.order_file, self.state_numbers) #remember, remember TODO
                 self.rr.random_restart_hill_climbing()
                 self.endtop = tk.Toplevel()
                 self.endtop.title("End of Process")
-                self.psuused = tk.Label(self.endtop, text = "You used ... PSUs" ) #... add %s total number of psu used
+                self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] )
                 self.psuused.pack()
-                self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: ..." )# ... add %s list of the identifier number
+                self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: %s they carried the following items" %output["units"] )# ... add %s list of the identifier number
                 #and item stored in which psu
                 self.psu_ident.pack()
                 self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
@@ -223,19 +203,19 @@ class GUI:
             self.endtop.title("End of Process")
             self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
             self.psuused.pack()
-            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: " )# ... add %s list of the identifier number
+            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: %s they carried the following items" %output["units"] )# ... add %s list of the identifier number
             #and item stored in which psu
             self.psu_ident.pack()
             self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
             self.endbutton.pack()
         if self.algorithm == "Hill-Climbing":
-            self.fc = HillClimbing(self.warehouse_file, self.order_file)
-            output = self.fc.hill_climbing()
+            self.hc = HillClimbing(self.warehouse_file, self.order_file)
+            output = self.hc.hill_climbing()
             self.endtop = tk.Toplevel()
             self.endtop.title("End of Process")
             self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
             self.psuused.pack()
-            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: " )# ... add %s list of the identifier number
+            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: %s they carried the following items" %output["units"] )# ... add %s list of the identifier number
         #and item stored in which psu
             self.psu_ident.pack()
             self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
