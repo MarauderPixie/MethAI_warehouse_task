@@ -1,7 +1,3 @@
-"""
-
-"""
-
 import random
 import numpy as np
 from warehouse import Warehouse
@@ -97,13 +93,15 @@ class FirstChoiceHillClimbing(Warehouse):
         retrieved_units = self.retrieve_units(best_state)
         retrieved_items = len(self.get_covered_items(best_state))
         number_used_units = sum(best_state)
-        print("iterations:", step, "PSUs used:", number_used_units, "covered:", retrieved_items, "Items in order:", self.warehouse.goal, "items", retrieved_units)
+        print("iterations:", step, 
+              "\nPSUs used:", number_used_units, 
+              "\ncovered:", retrieved_items, 
+              "\nItems in order:", self.warehouse.goal, 
+              "\nContent of used PSUs:", retrieved_units)
 
 
 
-# path_w = "../data/problem1.txt"
-# path_o = "../data/order11.txt"
-# bs = FirstChoiceHillClimbing(path_w, path_o)
-# bs.first_choice_hill_climbing()
-
-
+path_w = "data/problem1.txt"
+path_o = "data/order11.txt"
+fchc = FirstChoiceHillClimbing(path_w, path_o)
+fchc.first_choice_hill_climbing()

@@ -102,10 +102,14 @@ class HillClimbing(Warehouse):
         retrieved_items = len(self.get_covered_items(state))
 
         number_used_units = sum(state)
-        print("iterations:", k, "PSUs used:", number_used_units,"covered:", retrieved_items, "Items in order:", self.warehouse.goal, "items", retrieved_units)
+        print("iterations:", k, 
+              "\nPSUs used:", number_used_units,
+              "\ncovered:", retrieved_items, 
+              "\nItems in order:", self.warehouse.goal, 
+              "\nContent of used PSUs:", retrieved_units)
 
 
-path_w = "../data/problem1.txt"
-path_o = "../data/order11.txt"
-bs = HillClimbing(path_w, path_o)
-bs.hill_climbing()
+path_w = "data/problem1.txt"
+path_o = "data/order11.txt"
+hc = HillClimbing(path_w, path_o)
+hc.hill_climbing()
