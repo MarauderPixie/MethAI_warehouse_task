@@ -64,7 +64,14 @@ class SimulatedAnnealing(Warehouse):
                 items = self.warehouse.encoded_warehouse[index]
                 retrieved.append((index, items))
         return retrieved
-
+    def retrieve_units(self, state):  # TODO rename retrieve_psus() or smth?
+        retrieved = []
+        for i in range(len(state)):
+            if state[i] == 1:
+                index = self.warehouse.indices_relevant_units[i]
+                items = self.warehouse.encoded_warehouse[index]
+                retrieved.append((index, items))
+        return retrieved
 
     ## call function on order
     def simulated_annealing(self): #A= relevant, O = order
@@ -86,17 +93,24 @@ class SimulatedAnnealing(Warehouse):
                 state_best = state.copy()
             temperature = self.update_temperature(temperature)
             step += 1
+        retrieved_units = self.retrieve_units(state_best)
+        retrieved_items = len(self.get_covered_items(state_best))
 
         cov = self.get_fitness(state_best)[0]
-        print("iterations:", step, 
-              "\nPSUs used:", sum(state_best),
-              "\ncovered:", cov, 
-              "\nItems in order:", goal, 
-              "\nContent of used PSUs:", self.translate_state(state_best))
+        # print("iterations:", step,
+        #       "\nPSUs used:", sum(state_best),
+        #       "\ncovered:", cov,
+        #       "\nItems in order:", goal,
+        #       "\nContent of used PSUs:", self.translate_state(state_best))
         # return state_best, sum(state_best), self.translate_state(state_best)
+        output = {"number_units": sum(state_best),
+                  "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
+                  "covered_items": retrieved_items,
+                  "goal": self.warehouse.goal
+                  }
+        return output
 
-
-path_w = "data/problem1.txt"
-path_o = "data/order11.txt"
-sa = SimulatedAnnealing(path_w,path_o)
-sa.simulated_annealing()
+# path_w = "../data/problem1.txt"
+# path_o = "../data/order11.txt"
+# sa = SimulatedAnnealing(path_w,path_o)
+# sa.simulated_annealing()

@@ -111,8 +111,8 @@ class GUI:
         number = self.number_button.get()
         print("You selectet %s states" %number)
         try:
-            state_numbers = int(number)
-            return state_numbers
+            self.state_numbers = int(number)
+            return self.state_numbers
         except ValueError:
             print("Enter an Integer, please!")
             return False
@@ -166,17 +166,17 @@ class GUI:
                 self.stoptop.title("Error!")
                 self.errorbutton = tk.Button(self.stoptop, text = "Ooops, you forgot to select a number of states, try again!", command = lambda: self.stoptop.destroy())
                 self.errorbutton.pack()
-                    self.bs = BeamSearch(self.warehouse_file, self.order_file, 3) #remember, remember TODO
-                    self.bs.random_restart_hill_climbing()
-                    self.endtop = tk.Toplevel()
-                    self.endtop.title("End of Process")
-                    self.psuused = tk.Label(self.endtop, text = "You used ... PSUs" ) #... add %s total number of psu used
-                    self.psuused.pack()
-                    self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: ..." )# ... add %s list of the identifier number
-                    #and item stored in which psu
-                    self.psu_ident.pack()
-                    self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
-                    self.endbutton.pack()
+                self.bs = BeamSearch(self.warehouse_file, self.order_file, 3) #remember, remember TODO
+                self.bs.random_restart_hill_climbing()
+                self.endtop = tk.Toplevel()
+                self.endtop.title("End of Process")
+                self.psuused = tk.Label(self.endtop, text = "You used ... PSUs" ) #... add %s total number of psu used
+                self.psuused.pack()
+                self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: ..." )# ... add %s list of the identifier number
+                #and item stored in which psu
+                self.psu_ident.pack()
+                self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
+                self.endbutton.pack()
             if self.algorithm == "Simulated Annealing":
                 self.hc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
                 output = self.hc.first_choice_hill_climbing()
