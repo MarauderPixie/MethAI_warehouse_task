@@ -41,10 +41,14 @@ class Warehouse:
         encoded = [stock.get(item) for item in items_list]
         return encoded
 
-    def decode_items(self, stock, encoded_items_list): # TODO remove stock from parameter list, use self.stock_count (?) instead
 
-        for i in range(1, len(encoded_items_list)):
-            print(list(stock.keys())[list(stock.values()).index(encoded_items_list[i])])
+    def decode_items(self, encoded_items_list): # TODO remove stock from parameter list, use self.stock_count (?) instead
+        stock_count = dict([v, k] for k, v in self.stock_count.items())
+        decoded = [stock_count.get(item) for item in encoded_items_list]
+
+        return decoded
+        # for i in range(1, len(encoded_items_list)):
+        #     print(list(stock.keys())[list(stock.values()).index(encoded_items_list[i])])
 
 
     # keep only the PSUs that contain at least one of the items in the order, with only the relevant item in them
@@ -65,4 +69,3 @@ class Warehouse:
 # path_o = "data/order11.txt"
 # w = Warehouse(path_w, path_o)
 # w.prune()
-

@@ -22,8 +22,8 @@ class FirstChoiceHillClimbing(Warehouse):
         return items
 
     '''
-        calculate the cost of a state 
-        cost is the number of covered items in that state minus the number of PSUs used 
+        calculate the cost of a state
+        cost is the number of covered items in that state minus the number of PSUs used
     '''
     def get_cost(self, state):
         covered_items = self.get_covered_items(state)
@@ -33,7 +33,7 @@ class FirstChoiceHillClimbing(Warehouse):
         return cost
 
     '''
-        
+    
     '''
     def get_neighbor(self, state):
         nhb = state.copy()
@@ -63,7 +63,7 @@ class FirstChoiceHillClimbing(Warehouse):
         return retrieved
 
     '''
-        given a state, look at the nearest neighbor and return it if it improves the cost value 
+        given a state, look at the nearest neighbor and return it if it improves the cost value
         if no neighbor improves it, return the initial state
     '''
     def make_move_hill(self, state):
@@ -73,16 +73,25 @@ class FirstChoiceHillClimbing(Warehouse):
 
         return neighbor if cost_current <= cost_neighbor else state
 
+    def translate_state(self, state):  # TODO rename retrieve_psus() or smth?
+        retrieved = []
+        for i in range(len(state)):
+            if state[i] == 1:
+                index = self.warehouse.indices_relevant_units[i]
+                items = self.warehouse.encoded_warehouse[index]
+                retrieved.append((index, items))
+        return retrieved
+
     '''
         perform first choice hill climbing
-        return 
+        return
     '''
 
-    def first_choice_hill_climbing(self):  # R= relevant, O = order
+    def first_choice_hill_climbing(self):
         l = len(self.warehouse.relevant_units)
-        # generate the initial state as an array of 1s and 0s with probability TODO how was p chosen
+        # generate the initial state as an array of 1s and 0s with probability based on the goal
         initial_state = np.random.choice([0, 1], size=(l,),
-                                 p=[1 -  self.warehouse.goal / l,  self.warehouse.goal / l])  # rendom array 0=PSU not used 1=PSUused
+                                 p=[1 -  self.warehouse.goal / l,  self.warehouse.goal / l])
         step = 0
         # keep exploring until the number of covered items corresponds to the number of items in order
         while (len(self.get_covered_items(initial_state)) != self.warehouse.goal):
@@ -93,15 +102,23 @@ class FirstChoiceHillClimbing(Warehouse):
         retrieved_units = self.retrieve_units(best_state)
         retrieved_items = len(self.get_covered_items(best_state))
         number_used_units = sum(best_state)
-        print("iterations:", step, 
-              "\nPSUs used:", number_used_units, 
-              "\ncovered:", retrieved_items, 
-              "\nItems in order:", self.warehouse.goal, 
-              "\nContent of used PSUs:", retrieved_units)
+        # print("iterations:", step,
+        #       "\nPSUs used:", number_used_units,
+        #       "\ncovered:", retrieved_items,
+        #       "\nItems in order:", self.warehouse.goal,
+        #       "\nContent of used PSUs:", retrieved_units)
+        output = {"number_units" : number_used_units,
+                  "units" : [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
+                  "iterations" : step,
+                  "covered_items" : retrieved_items,
+                  "goal" : self.warehouse.goal
+        }
+        print(output.items())
+        return output
 
 
 
-path_w = "data/problem1.txt"
-path_o = "data/order11.txt"
-fchc = FirstChoiceHillClimbing(path_w, path_o)
-fchc.first_choice_hill_climbing()
+# path_w = "../data/problem1.txt"
+# path_o = "../data/order11.txt"
+# fchc = FirstChoiceHillClimbing(path_w, path_o)
+# fchc.first_choice_hill_climbing()
