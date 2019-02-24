@@ -4,6 +4,7 @@ from tkinter import filedialog as fd
 from os import startfile
 from warehouse import Warehouse
 from algorithms.local_beam_search import BeamSearch
+from algorithms.hill_climbing import HillClimbing
 # class MainApplication(tk.Frame):
 
 #creating a GUI
@@ -22,6 +23,7 @@ class GUI:
         master.title("Warehouse")
         self.order_file = ""
         self.warehouse_file = ""
+        self.algorithm = ""
         self.bs = None
         self.firstlabel = tk.Label(root, text = "Here you can place a order:")
         self.firstlabel.pack()
@@ -92,7 +94,8 @@ class GUI:
         self.orderbut.pack()
 
     def change_states(self, variable):
-        if variable == "Parallel Hill-Climbing" or variable == "Local Beam Search":
+        self.algorithm = variable
+        if self.algorithm == "Parallel Hill-Climbing" or self.algorithm == "Local Beam Search":
             print(variable)
             self.top = tk.Toplevel()
             self.top.title("Enter a number of states")
@@ -107,7 +110,7 @@ class GUI:
 # this function reads in the number of states for Parallel HC and Simulated Annealing
     def states(self):
         number = self.number_button.get()
-        #print(number)
+        print("You selectet %s states" %number)
         try:
             state_numbers = int(number)
             return state_numbers
@@ -117,23 +120,32 @@ class GUI:
 
 
     def start_processing(self):
-        print("starting processing")
-        if wh is None: #is not defined
+        if not self.warehouse_file: #is not defined
             self.stoptop = tk.Toplevel()
             self.stoptop.title("Error!")
             self.errorbutton = tk.Button(self.stoptop, text = "Ooops, you forgot to load your warehouse, try again!", command = lambda: self.stoptop.destroy())
             self.errorbutton.pack()
-        elif order is None:
+        elif not self.order_file:
             self.top = tk.Toplevel()
             self.top.title("Error!")
-            self.errorbutton = tk.Button(self.top, text = "Ooops, you forgot to load your warehouse, try again!",command= lambda: self.top.destroy())
+            self.errorbutton = tk.Button(self.top, text = "Ooops, you forgot to load your order, try again!",command= lambda: self.top.destroy())
             self.errorbutton.pack()
-        self.bs = BeamSearch(self.warehouse_file, self.order_file, 3)
-        self.bs.beam_search()
 
+        if self.algorithm == "Local Beam Search":
+            #self.hc = HillClimbing(self.warehouse_file, self.order_file)
+            #self.hc.hill_climbing()
+#        elif self.warehouse_file and self.order_file:
+            self.bs = BeamSearch(self.warehouse_file, self.order_file, 3)
+            self.bs.beam_search()
+#"Hill-Climbing",
+#"First-Choice Hill-Climbing",
+#"Parallel Hill-Climbing",
+#"Simulated Annealing",
+#"Local Beam Search"
+#
     ##define here where to open the file,
     #def view_stock(self):
-        startfile("stock.txt")
+#        startfile("stock.txt")
         #TODO open file?
 
 
@@ -162,7 +174,7 @@ class GUI:
         if order_file:
             print('Selected:', order_file.name)
             self.order_file =  order_file.name
-            order = order_file.read()
+            #order = order_file.read()
 
 
 ################################## #TODO add this to ask user before quitting
