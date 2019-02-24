@@ -160,19 +160,11 @@ class BeamSearch(Warehouse):
         print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.translate_state(state_best))
         for i in self.translate_state(state_best):
             print(self.warehouse.decode_items(i[1]))
-        # for l in li:
-        #     self.warehouse.decode_items(self.warehouse.stock_count,l[1])
 
 
-path_w = "../data/problem1.txt"
-path_o = "../data/order11.txt"
+
+
+path_w = "data/problem1.txt"
+path_o = "data/order11.txt"
 bs = BeamSearch(path_w, path_o)
 bs.beam_search()
-# w = warehouse.Warehouse(path_w,path_o)
-# # bs = BeamSearch(w)
-# # bs = BeamSearch(NoWarehouse, NoOrder12)
-# # print("all psus with the items inside:", bs.warehouse)
-# # print("order:", bs.order)
-# # print("prune:", len(bs.prune()), bs.prune())
-# #
-# bs.beam_search()
