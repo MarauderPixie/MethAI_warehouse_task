@@ -10,18 +10,25 @@ class BeamSearch(Warehouse):
         self.warehouse = Warehouse(filepath_warehouse, filepath_order)
         self.beam_width = beam_width
 
+    '''
+        return a list of all items from the order covered in the particular state
+        for the goal to be reached, number of covered items must be equal to number of items in order
+    '''
     def get_covered_items(self, state):
-        cov = []
+        items = []
+        # if an index of the state is 1, retrieve the items from psu with the same index
         for i in range(len(state)):
             if state[i] == 1:
-                cov.append(self.warehouse.relevant_units[i])
-        return cov
+                items.append(self.warehouse.relevant_units[i])
+        # flatten list of list and throw out duplicats
+        items = set([item for sublist in items for item in sublist])
+
+        return items
 
 
     def get_fitness(self, state):
         cov = self.get_covered_items(state)
         covered = set([item for sublist in cov for item in sublist])  # flattens list of list and throws out duplicats
-
         y = sum(state)  # number of PSUs used
         # by multiplying y with a number we can set a bias for the psus/items
         # reducing y means higher weight for number of items

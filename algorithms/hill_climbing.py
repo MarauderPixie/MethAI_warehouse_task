@@ -37,6 +37,7 @@ class HillClimbing(Warehouse):
         return cost
 
     '''
+        
     '''
     def get_neighbor(self, state):
         nhb = state.copy()
@@ -56,7 +57,7 @@ class HillClimbing(Warehouse):
     '''
         given a state, return a tuple containing the corresponding PSU and a list of the items inside it
     '''
-    def retrieve_units(self, state):  # TODO rename retrieve_psus() or smth?
+    def retrieve_units(self, state):
         retrieved = []
         for i in range(len(state)):
             if state[i] == 1:
@@ -87,7 +88,7 @@ class HillClimbing(Warehouse):
         return nhb if current <= new else state
 
 
-    def hill_climbing(self):  # R= relevant, O = order
+    def hill_climbing(self):
         L = len(self.warehouse.relevant_units)
         state = np.random.choice([0, 1], size=(L, ), p=[1-self.warehouse.goal/L, self.warehouse.goal/L])  #rendom array 0=PSU not used 1=PSUused
         k = 0

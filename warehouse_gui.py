@@ -4,6 +4,7 @@ from tkinter import filedialog as fd
 from os import startfile
 from warehouse import Warehouse
 from algorithms.local_beam_search import BeamSearch
+from algorithms.first_choice_hill_climbing import FirstChoiceHillClimbing
 #from algorithms.hill_climbing import HillClimbing
 # class MainApplication(tk.Frame):
 
@@ -133,7 +134,7 @@ class GUI:
             #self.hc = HillClimbing(self.warehouse_file, self.order_file)
             #self.hc.hill_climbing()
 #        elif self.warehouse_file and self.order_file:
-            self.bs = BeamSearch(self.warehouse_file, self.order_file, 3)
+            self.bs = BeamSearch(self.warehouse_file, self.order_file, 3) #remember, remember TODO
             self.bs.beam_search()
             self.endtop = tk.Toplevel()
             self.endtop.title("End of Process")
@@ -146,6 +147,21 @@ class GUI:
             self.endbutton.pack()
 #            self.psuus = tk.Label(self.forframe, text="you used ... psus")
 #            self.psuus.pack(side=tk.BOTTOM)
+        if self.algorithm == "First-Choice Hill-Climbing":
+            #self.hc = HillClimbing(self.warehouse_file, self.order_file)
+            #self.hc.hill_climbing()
+#        elif self.warehouse_file and self.order_file:
+            self.hc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
+            output = self.hc.first_choice_hill_climbing()
+            self.endtop = tk.Toplevel()
+            self.endtop.title("End of Process")
+            self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
+            self.psuused.pack()
+            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: " )# ... add %s list of the identifier number
+            #and item stored in which psu
+            self.psu_ident.pack()
+            self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
+            self.endbutton.pack()
 
 
 
