@@ -2,7 +2,6 @@ import random
 from warehouse import Warehouse
 import numpy as np
 
-#TODO implement configurable number of states
 
 class HillClimbing(Warehouse):
     def __init__(self, filepath_warehouse, filepath_order):
@@ -37,7 +36,7 @@ class HillClimbing(Warehouse):
         return cost
 
     '''
-        
+        generate neighbors of a state by randomly setting two units to 0 with 100% probability, and one with 50% probability
     '''
     def get_neighbor(self, state):
         nhb = state.copy()
@@ -66,6 +65,9 @@ class HillClimbing(Warehouse):
                 retrieved.append((index, items))
         return retrieved
 
+    '''
+        explore new states to improve the objective function
+    '''
     def make_move_hill(self, state):
         nhb_1 = self.get_neighbor(state)
         nhb_2 = self.get_neighbor(state)
@@ -87,7 +89,9 @@ class HillClimbing(Warehouse):
             nhb = nhb_3
         return nhb if current <= new else state
 
-
+    '''
+    perform hill climbing 
+    '''
     def hill_climbing(self):
         L = len(self.warehouse.relevant_units)
         state = np.random.choice([0, 1], size=(L, ), p=[1-self.warehouse.goal/L, self.warehouse.goal/L])  #rendom array 0=PSU not used 1=PSUused
@@ -103,14 +107,17 @@ class HillClimbing(Warehouse):
         retrieved_items = len(self.get_covered_items(state))
 
         number_used_units = sum(state)
-        print("iterations:", k, 
-              "\nPSUs used:", number_used_units,
-              "\ncovered:", retrieved_items, 
-              "\nItems in order:", self.warehouse.goal, 
-              "\nContent of used PSUs:", retrieved_units)
+        output = {"number_units": number_used_units,
+                  "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
+                  "iterations": k,
+                  "covered_items": retrieved_items,
+                  "goal": self.warehouse.goal
+                  }
 
+        return output
+        # print("iterations:", k,
+        #       "\nPSUs used:", number_used_units,
+        #       "\ncovered:", retrieved_items,
+        #       "\nItems in order:", self.warehouse.goal,
+        #       "\nContent of used PSUs:", retrieved_units)
 
-path_w = "data/problem1.txt"
-path_o = "data/order11.txt"
-hc = HillClimbing(path_w, path_o)
-hc.hill_climbing()
