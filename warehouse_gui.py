@@ -4,7 +4,7 @@ from tkinter import filedialog as fd
 from os import startfile
 from warehouse import Warehouse
 from algorithms.local_beam_search import BeamSearch
-from algorithms.hill_climbing import HillClimbing
+#from algorithms.hill_climbing import HillClimbing
 # class MainApplication(tk.Frame):
 
 #creating a GUI
@@ -48,8 +48,6 @@ class GUI:
         # fith frame to print in the psu used
         self.fifframe = tk.Frame(root)
         self.fifframe.pack(side=tk.BOTTOM)
-        self.psuus = tk.Label(self.forframe, text="you used ... psus")
-        self.psuus.pack(side=tk.BOTTOM)
         #load warehouse
         self.button = tk.Button(self.secframe, text='Load your warehouse here', command= self.upload_warehouse_file)
         self.button.pack()
@@ -137,17 +135,17 @@ class GUI:
 #        elif self.warehouse_file and self.order_file:
             self.bs = BeamSearch(self.warehouse_file, self.order_file, 3)
             self.bs.beam_search()
-#"Hill-Climbing",
-#"First-Choice Hill-Climbing",
-#"Parallel Hill-Climbing",
-#"Simulated Annealing",
-#"Local Beam Search"
-#
-    ##define here where to open the file,
-    #def view_stock(self):
-#        startfile("stock.txt")
-        #TODO open file?
-
+            self.endtop = tk.Toplevel()
+            self.endtop.title("End of Process")
+            self.psuused = tk.Label(self.endtop, text = "You used ... PSUs" ) #... add %s total number of psu used
+            self.psuused.pack()
+            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: ..." )# ... add %s list of the identifier number
+            #and item stored in which psu
+            self.psu_ident.pack()
+            self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
+            self.endbutton.pack()
+#            self.psuus = tk.Label(self.forframe, text="you used ... psus")
+#            self.psuus.pack(side=tk.BOTTOM)
 
 
 
