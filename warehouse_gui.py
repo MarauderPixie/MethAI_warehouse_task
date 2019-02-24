@@ -155,7 +155,7 @@ class GUI:
                 self.errorbutton.pack()
             else:
                 self.bs = BeamSearch(self.warehouse_file, self.order_file, self.state_numbers) #remember, remember TODO
-                self.bs.beam_search()
+                output = self.bs.beam_search()
                 self.endtop = tk.Toplevel()
                 self.endtop.title("End of Process")
                 self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
@@ -186,7 +186,7 @@ class GUI:
                 self.errorbutton.pack()
             else:
                 self.rr = RandomRestartHillClimbing(self.warehouse_file, self.order_file, self.state_numbers) #remember, remember TODO
-                self.rr.random_restart_hill_climbing()
+                output = self.rr.random_restart_hill_climbing()
                 self.endtop = tk.Toplevel()
                 self.endtop.title("End of Process")
                 self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] )
@@ -215,7 +215,7 @@ class GUI:
             self.endtop.title("End of Process")
             self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
             self.psuused.pack()
-            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: %s they carried the following items" %output["units"] )# ... add %s list of the identifier number
+            self.psu_ident = tk.Label(self.endtop, text = "The PSUs you used are: %s" %output["units"] )# ... add %s list of the identifier number
         #and item stored in which psu
             self.psu_ident.pack()
             self.endbutton = tk.Button(self.endtop, text = "End", command = lambda: self.endtop.destroy())
