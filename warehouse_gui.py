@@ -53,9 +53,12 @@ class GUI:
         self.fifframe = tk.Frame(root)
         self.fifframe.pack(side=tk.BOTTOM)
         self.resetbutton = tk.Button(self.fifframe, text = 'Reset', command = self.refresh)
-        #def refresh():
-        #    root.destroy()
-        #    __init__(self, master)
+        def refresh():
+            self.variable.set("Select an Algorithm")
+            self.number_button.set(0)
+            self.warehouse_file.set("")
+            self.order_file.set("")
+
         #load warehouse
         self.button = tk.Button(self.secframe, text='Load your warehouse here', command= self.upload_warehouse_file)
         self.button.pack()

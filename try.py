@@ -13,3 +13,11 @@ class SampleApp(tk.Tk):
 
 app = SampleApp()
 app.mainloop()
+
+#try the resetbutton
+self.resetbutton = tk.Button(self.fifframe, text = 'Reset', command = self.refresh)
+def refresh():
+    self.variable.set("Select an Algorithm")
+    self.number_button.set(0)
+    self.warehouse_file.set("")
+    self.order_file.set("")
