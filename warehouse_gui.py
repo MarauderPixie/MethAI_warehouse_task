@@ -79,16 +79,15 @@ class GUI:
         self.algorithm_button = tk.OptionMenu(self.main_frame, self.variable, *OPTIONS, command=self.enter_states)
         self.algorithm_button.pack()
 
-        # this will be used to read in a number of states entered by the user
+
+        # initialize state/restart number input elements
         variable = tk.IntVar()
         self.states_entry = tk.Entry(self.main_frame, state='disabled', textvariable=variable, text="variable")
-        self.states_entry.pack()
-
-        # tinkering
         self.description = tk.Label(self.main_frame, text="Set the number of states / restarts.")
         self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
-        self.go_button.pack()
-        self.description.pack()
+        # self.states_entry.pack()
+        # self.go_button.pack()
+        # self.description.pack()
 
         # final start button
         self.bottom_frame = tk.Frame(root)  # TODO used for reset button and order
@@ -110,6 +109,7 @@ class GUI:
         self.exit_button.pack(side=tk.BOTTOM)
    
     def refresh(self):
+        self.states_entry.forget()
         self.go_button.forget()
         self.description.forget()
         self.variable.set("Select an Algorithm")
@@ -124,26 +124,21 @@ class GUI:
     '''
     def enter_states(self, variable):
         self.algorithm = variable
+        self.states_entry.pack_forget()
+        self.go_button.pack_forget()
+        self.description.pack_forget()
 
         if self.algorithm == "Random Restart Hill-Climbing" or self.algorithm == "Local Beam Search":
             if self.algorithm == "Random Restart Hill-Climbing":
-                self.go_button.pack_forget()
-                self.description.pack_forget()
-                self.description = tk.Label(self.main_frame, text="Set the number of restarts.")
-                self.go_button.pack()
-                self.description.pack()
-                
+                self.description = tk.Label(self.main_frame, text="Set the number of restarts:")
             if self.algorithm == "Local Beam Search":
-                self.go_button.pack_forget()
-                self.description.pack_forget()
-                self.description = tk.Label(self.main_frame, text="Set the number of states.")
-                self.go_button.pack()
-                self.description.pack()
+                self.description = tk.Label(self.main_frame, text="Set the number of states:")
+            self.description.pack()
+            self.states_entry.pack()
+            self.go_button.pack()
             self.states_entry.config(state='normal')
 
         else:
-            self.go_button.pack_forget()
-            self.description.pack_forget()
             self.states_entry.config(state='disabled')
             # print(variable)
             # self.top = tk.Toplevel()
