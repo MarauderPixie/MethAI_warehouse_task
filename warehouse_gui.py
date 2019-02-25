@@ -17,8 +17,9 @@ from algorithms.random_restart_hill_climbing import RandomRestart
 # TODO [x] rename variables and give them better descriptive names
 # TODO [x] fix initial frame size
 # TODO [] fix position of processing, reset and exit buttons
-# TODO [] fix bug where states entry box appears a million times if you click on the algorithm again
+# TODO [x] fix bug where states entry box appears a million times if you click on the algorithm again
 # TODO [] add this to ask user before quitting maybe?
+# TODO [] fix display of order_file when resetting
 
 class GUI:
     def __init__(self, master):
@@ -109,11 +110,10 @@ class GUI:
         self.exit_button.pack(side=tk.BOTTOM)
    
     def refresh(self):
-        # self.main_frame.forget()
         self.go_button.forget()
         self.description.forget()
         self.variable.set("Select an Algorithm")
-        self.number_states = ""
+        self.number_states = 0
         self.warehouse_file = ""
         self.order_file = ""
         self.button_warehouse.config(text="Load your warehouse here")
@@ -132,6 +132,7 @@ class GUI:
                 self.description = tk.Label(self.main_frame, text="Set the number of restarts.")
                 self.go_button.pack()
                 self.description.pack()
+                
             if self.algorithm == "Local Beam Search":
                 self.go_button.pack_forget()
                 self.description.pack_forget()
