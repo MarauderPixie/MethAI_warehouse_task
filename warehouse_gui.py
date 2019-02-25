@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+import webbrowser as wb
 from tkinter import Tk
 from tkinter import filedialog
 from tkinter import ttk
@@ -10,7 +11,7 @@ from algorithms.hill_climbing import HillClimbing
 from algorithms.random_restart_hill_climbing import RandomRestart
 
 # TODO [x] bind all algorithms to each option button
-# TODO [] add button display stock and order (open file? print? open popup?)
+# TODO [x] add button display stock and order (open file? print? open popup?)
 # TODO [x] add test cases for 1. no file selected 2. missing arguments for algorithm option 3. missing warehouse or order file
 # TODO [] add some information about what each button does
 # TODO [x] find nice way to display output of each algorithm (messsage popup?)
@@ -97,13 +98,19 @@ class GUI:
         self.processing_button = tk.Button(self.bottom_frame, text="Retrieve Order", fg="red", command= self.start_processing)
         self.processing_button.pack(side = tk.LEFT)
 
+        self.wh_open = tk.Button(self.bottom_frame, text="Texteditor", command=lambda: self.open_textfile())
+        self.wh_open.pack(side = tk.LEFT)
+
 
         self.last_frame = tk.Frame(root)  # TODO used for exit button
         self.last_frame.pack(side=tk.BOTTOM)
         # Exit the program
         self.exit_button = tk.Button(self.last_frame, text="Exit", command=lambda: self.master.destroy())
         self.exit_button.pack(side=tk.BOTTOM)
-   
+
+    def open_textfile(self):
+        wb.open(self.warehouse_file)
+
     def refresh(self):
         self.states_entry.forget()
         self.go_button.forget()
@@ -164,7 +171,7 @@ class GUI:
 
     '''
         Popup message if user did not enter an integer
-    '''
+    '''        
     def popup_message(self):
         popup = tk.Tk()
         popup.wm_title("!")
@@ -173,7 +180,7 @@ class GUI:
         label.pack(side="top", fill="x", pady=10)
         okay_button = ttk.Button(popup, text="Okay", command=popup.destroy)
         okay_button.pack()
-
+    
     def format_output(self, dict):
         with open(self.order_file) as f:
             for line in f:
