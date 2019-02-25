@@ -79,15 +79,11 @@ class GUI:
         self.algorithm_button = tk.OptionMenu(self.main_frame, self.variable, *OPTIONS, command=self.enter_states)
         self.algorithm_button.pack()
 
-
         # initialize state/restart number input elements
         variable = tk.IntVar()
         self.states_entry = tk.Entry(self.main_frame, state='disabled', textvariable=variable, text="variable")
         self.description = tk.Label(self.main_frame, text="Set the number of states / restarts.")
         self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
-        # self.states_entry.pack()
-        # self.go_button.pack()
-        # self.description.pack()
 
         # final start button
         self.bottom_frame = tk.Frame(root)  # TODO used for reset button and order
@@ -179,11 +175,17 @@ class GUI:
         okay_button.pack()
 
     def format_output(self, dict):
-        output_string = "Retrieved {} of {} items in your order using {} PSUs\n\n".format(dict["covered_items"],
-                                                                                          dict["goal"],
-                                                                                          dict["number_units"])
+        with open(self.order_file) as f:
+            for line in f:
+                order = line.strip().split(" ")
+        
+        output_string = "Items ordered:\n{}".format(", ".join(order))
+
+        output_string += "\n\nRetrieved {} of {} items in your order using {} PSUs".format(dict["covered_items"],
+                                                                                           dict["goal"],
+                                                                                           dict["number_units"])
         for unit in dict["units"]:
-            output_string = output_string + "Unit no. {} containing following items: \n {}\n\n".format(unit[0], ','.join(unit[1]))
+            output_string += "\n\nUnit #{}, containing the following items: \n {}".format(unit[0], ', '.join(unit[1]))
 
         return output_string
 
