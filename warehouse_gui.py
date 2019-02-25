@@ -84,27 +84,6 @@ class GUI:
         self.states_entry.pack()
 
 
-
-            #    self.variable.trace("w", self.change_states)
-    #    if self.variable.get() == "Parallel Hill-Climbing":      # About window
-    #        top.title("Parallel Hill-Climbing")
-    #        toplabel = Label(top,text= "Select number of states")
-    #        toplabel.pack()
-    #        button = tk.Entry(top)
-    #        button.grid()
-    #        top.grid()
-    #    if self.variable.get() == "Local Beam Search":
-    #        top
-
-        #if self.algobut == OPTIONS[2] or self.algobut == OPTIONS[4]:
-        #    stat_num = tk.Entry(self.secframe, text="select number of states: ")
-        #    stat_num.pack()
-        #self.select_steps = tk.Entry(self.secframe, text = "select number of steps")
-        #self.select_steps.pack()
-        # local beam search brauchen wir config numb of states
-
-        #sel_order = self.upload_warehouse_file() #thats why it is always opening a window before anything
-
         # final start button
         self.bottom_frame = tk.Frame(root)  # TODO used for reset button and order
         self.bottom_frame.pack(side=tk.LEFT)
@@ -123,13 +102,16 @@ class GUI:
         # Exit the program
         self.exit_button = tk.Button(self.last_frame, text="Exit", command=lambda: self.master.destroy())
         self.exit_button.pack(side=tk.BOTTOM)
-
+   
     def refresh(self):
+        # self.main_frame.forget()
+        self.go_button.forget()
+        self.description.forget()
         self.variable.set("Select an Algorithm")
-        self.number_states = 0
+        self.number_states = ""
         self.warehouse_file = ""
         self.order_file = ""
-        self.button_warehouse.config(text="Load your order here")
+        self.button_warehouse.config(text="Load your warehouse here")
 
 
     '''
@@ -137,8 +119,14 @@ class GUI:
     '''
     def enter_states(self, variable):
         self.algorithm = variable
+        if "go_button" in self.main_frame.winfo_children():
+            self.go_button.forget()
+            self.description.forget()
         if self.algorithm == "Random Restart Hill-Climbing" or self.algorithm == "Local Beam Search":
-            self.description = tk.Label(self.main_frame, text="Set the number of states.")
+            if self.algorithm == "Random Restart Hill-Climbing":
+                self.description = tk.Label(self.main_frame, text="Set the number of restarts.")
+            if self.algorithm == "Local Beam Search":
+                self.description = tk.Label(self.main_frame, text="Set the number of states.")
             self.states_entry.config(state='normal')
             self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
             self.go_button.pack()
@@ -185,11 +173,11 @@ class GUI:
         okay_button.pack()
 
     def format_output(self, dict):
-        output_string = "Retrieved {} of {} items in your order using {} PSUs\n".format(dict["covered_items"],
-                                                                                      dict["goal"],
-                                                                                      dict["number_units"])
+        output_string = "Retrieved {} of {} items in your order using {} PSUs\n\n".format(dict["covered_items"],
+                                                                                          dict["goal"],
+                                                                                          dict["number_units"])
         for unit in dict["units"]:
-            output_string = output_string + "Unit no. {} containing following items: \n {}\n".format(unit[0], ','.join(unit[1]))
+            output_string = output_string + "Unit no. {} containing following items: \n {}\n\n".format(unit[0], ','.join(unit[1]))
 
         return output_string
 
@@ -210,7 +198,7 @@ class GUI:
             self.errorbutton = tk.Button(self.top, text = "Ooops, you forgot to load your order, try again!",command= lambda: self.top.destroy())
             self.errorbutton.pack()
 
-        #perform Local Beam Search
+        # perform Local Beam Search
         if self.algorithm == "Local Beam Search":
             # check if a correct number of states is entered
             if self.number_states < 1:
@@ -231,7 +219,7 @@ class GUI:
                 self.end_button.pack()
 
 
-        #perform First Choice Hill Climbing
+        # perform First Choice Hill Climbing
         if self.algorithm == "First-Choice Hill-Climbing":
             self.fc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
             output = self.fc.first_choice_hill_climbing()
@@ -278,7 +266,7 @@ class GUI:
             self.end_button = tk.Button(self.endtop, text ="End", command = lambda: self.endtop.destroy())
             self.end_button.pack()
 
-        #perform Hill Climbing
+        # perform Hill Climbing
         if self.algorithm == "Hill-Climbing":
             self.hc = HillClimbing(self.warehouse_file, self.order_file)
             output = self.hc.hill_climbing()
