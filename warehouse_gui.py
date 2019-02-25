@@ -1,29 +1,25 @@
+import os
 import tkinter as tk
 from tkinter import Tk
-from tkinter import filedialog as fd
 from tkinter import filedialog
-from os import startfile
-import os
 from tkinter import ttk
-from warehouse import Warehouse
 from algorithms.local_beam_search import BeamSearch
 from algorithms.first_choice_hill_climbing import FirstChoiceHillClimbing
 from algorithms.simulated_annealing import SimulatedAnnealing
 from algorithms.hill_climbing import HillClimbing
 from algorithms.random_restart_hill_climbing import RandomRestart
-#from algorithms.hill_climbing import HillClimbing
-# class MainApplication(tk.Frame):
 
-#creating a GUI
-# TODO [] bind all algorithms to each option button
-# TODO [] display stock and order (open file? print? open popup?)
-# TODO [] add test cases for 1. no file selected 2. missing arguments for algorithm option 3. missing warehouse or order file
+# TODO [x] bind all algorithms to each option button
+# TODO [] add button display stock and order (open file? print? open popup?)
+# TODO [x] add test cases for 1. no file selected 2. missing arguments for algorithm option 3. missing warehouse or order file
 # TODO [] add some information about what each button does
-# TODO [] find nice way to display output of each algorithm (messsage popup?)
-# TODO [] rename variables and give them better descriptive names
-# TODO [] fix initial frame size
-# TODO display stock
-#1. creating a window
+# TODO [x] find nice way to display output of each algorithm (messsage popup?)
+# TODO [x] rename variables and give them better descriptive names
+# TODO [x] fix initial frame size
+# TODO [] fix position of processing, reset and exit buttons
+# TODO [] fix bug where states entry box appears a million times if you click on the algorithm again
+# TODO [] add this to ask user before quitting maybe?
+
 class GUI:
     def __init__(self, master):
         self.master = master
@@ -53,7 +49,6 @@ class GUI:
         # self.firstframe.pack()
         #self.stock_but = tk.Button(self.firstframe, text="here you can have a look at our stock", command=self.view_stock)
         #self.stock_but.pack(side=tk.TOP)
-        # second frame to select an order
 
 
         # create the main frame that will contain all the buttons
@@ -83,24 +78,10 @@ class GUI:
         self.algorithm_button = tk.OptionMenu(self.main_frame, self.variable, *OPTIONS, command=self.enter_states)
         self.algorithm_button.pack()
 
-        # self.e1 = tk.Entry(self.frame_setup, state='disabled')
-        # self.e1.pack()
-
         # this will be used to read in a number of states entered by the user
         variable = tk.IntVar()
         self.states_entry = tk.Entry(self.main_frame, state='disabled', textvariable=variable, text="variable")
         self.states_entry.pack()
-
-
-        # third frame to choose from search algorithms
-        # self.thirdframe = tk.Frame(root)
-        # self.thirdframe.pack(side=tk.LEFT)
-
-
-        # fourth frame with a order now Button
-
-
-        # choose the algo button
 
 
 
@@ -123,11 +104,33 @@ class GUI:
         # local beam search brauchen wir config numb of states
 
         #sel_order = self.upload_warehouse_file() #thats why it is always opening a window before anything
+
         # final start button
-        self.forframe = tk.Frame(root)  # TODO used for reset button and order
-        self.forframe.pack(side=tk.LEFT)
-        self.orderbut = tk.Button(self.forframe, text="Start Order", fg="red", command= self.start_processing)
-        self.orderbut.pack(side = tk.LEFT)
+        self.bottom_frame = tk.Frame(root)  # TODO used for reset button and order
+        self.bottom_frame.pack(side=tk.LEFT)
+
+        # reset all variables, including warehouse and order
+        self.resetbutton = tk.Button(self.bottom_frame, text='Reset', command=lambda: self.refresh())
+        self.resetbutton.pack(side=tk.LEFT)
+
+        # start processing the order according to the selected algorithm
+        self.processing_button = tk.Button(self.bottom_frame, text="Retrieve Order", fg="red", command= self.start_processing)
+        self.processing_button.pack(side = tk.LEFT)
+
+
+        self.last_frame = tk.Frame(root)  # TODO used for exit button
+        self.last_frame.pack(side=tk.BOTTOM)
+        # Exit the program
+        self.exit_button = tk.Button(self.last_frame, text="Exit", command=lambda: self.master.destroy())
+        self.exit_button.pack(side=tk.BOTTOM)
+
+    def refresh(self):
+        self.variable.set("Select an Algorithm")
+        self.number_states = 0
+        self.warehouse_file = ""
+        self.order_file = ""
+        self.button_warehouse.config(text="Load your order here")
+
 
     '''
         if user selects random restart of beam search algorithm, prompt them to enter number of states
@@ -135,7 +138,7 @@ class GUI:
     def enter_states(self, variable):
         self.algorithm = variable
         if self.algorithm == "Random Restart Hill-Climbing" or self.algorithm == "Local Beam Search":
-            self.description = tk.Label(self.main_frame, text="You can configure the number of states.")
+            self.description = tk.Label(self.main_frame, text="Set the number of states.")
             self.states_entry.config(state='normal')
             self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
             self.go_button.pack()
@@ -160,7 +163,7 @@ class GUI:
     '''
     def states(self):
         number = self.states_entry.get()
-        self.orderbut.focus()
+        self.processing_button.focus()
         try:
             self.number_states = int(number)
             return self.number_states
@@ -182,25 +185,13 @@ class GUI:
         okay_button.pack()
 
     def format_output(self, dict):
-        output_string = "Retrieved {} of {} items in your order using {} PSUs in {} iterations\n".format(dict["covered_items"],
+        output_string = "Retrieved {} of {} items in your order using {} PSUs\n".format(dict["covered_items"],
                                                                                       dict["goal"],
                                                                                       dict["number_units"])
         for unit in dict["units"]:
             output_string = output_string + "Unit no. {} containing following items: \n {}\n".format(unit[0], ','.join(unit[1]))
 
         return output_string
-
-        # print("iterations:", k,
-        #       "\nPSUs used:", number_used_units,
-        #       "\ncovered:", retrieved_items,
-        #       "\nItems in order:", self.warehouse.goal,
-        #       "\nContent of used PSUs:", retrieved_units)
-
-        # "number_units": number_used_units,
-        # "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
-        # "iterations": k,
-        # "covered_items": retrieved_items,
-        # "goal": self.warehouse.goal
 
     '''
         this function creates an object for each algorithm and performs the search
@@ -244,13 +235,12 @@ class GUI:
         if self.algorithm == "First-Choice Hill-Climbing":
             self.fc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
             output = self.fc.first_choice_hill_climbing()
+
             self.endtop = tk.Toplevel()
             self.endtop.title("End of Process")
-            # self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
-            # self.psuused.pack()
             self.output_message = tk.Label(self.endtop, text = self.format_output(output))# ... add %s list of the identifier number
-            #and item stored in which psu
             self.output_message.pack()
+
             self.end_button = tk.Button(self.endtop, text ="End", command = lambda: self.endtop.destroy())
             self.end_button.pack()
 
@@ -266,13 +256,12 @@ class GUI:
             else:
                 self.rr = RandomRestart(self.warehouse_file, self.order_file, self.number_states)
                 output = self.rr.random_restart()
+
                 self.endtop = tk.Toplevel()
                 self.endtop.title("End of Process")
-                # self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] )
-                # self.psuused.pack()
                 self.output_message = tk.Label(self.endtop, text = self.format_output(output))# ... add %s list of the identifier number
-                #and item stored in which psu
                 self.output_message.pack()
+
                 self.end_button = tk.Button(self.endtop, text ="End", command = lambda: self.endtop.destroy())
                 self.end_button.pack()
 
@@ -280,13 +269,12 @@ class GUI:
         if self.algorithm == "Simulated Annealing":
             self.sa = SimulatedAnnealing(self.warehouse_file, self.order_file)
             output = self.sa.simulated_annealing()
+
             self.endtop = tk.Toplevel()
             self.endtop.title("End of Process")
-            self.psuused = tk.Label(self.endtop, text = self.format_output(output)) #... add %s total number of psu used
-            self.psuused.pack()
-            self.output_message = tk.Label(self.endtop, text ="The PSUs you used are: %s they carried the following items" % output["units"])# ... add %s list of the identifier number
-            #and item stored in which psu
+            self.output_message = tk.Label(self.endtop, text = self.format_output(output))# ... add %s list of the identifier number
             self.output_message.pack()
+
             self.end_button = tk.Button(self.endtop, text ="End", command = lambda: self.endtop.destroy())
             self.end_button.pack()
 
@@ -294,66 +282,34 @@ class GUI:
         if self.algorithm == "Hill-Climbing":
             self.hc = HillClimbing(self.warehouse_file, self.order_file)
             output = self.hc.hill_climbing()
+
             self.endtop = tk.Toplevel()
             self.endtop.title("End of Process")
-            self.psuused = tk.Label(self.endtop, text = "You used %s PSUs" %output["number_units"] ) #... add %s total number of psu used
-            self.psuused.pack()
-            self.output_message = tk.Label(self.endtop, text ="The PSUs you used are: %s" % output["units"])# ... add %s list of the identifier number
-        #and item stored in which psu
+            self.output_message = tk.Label(self.endtop, text = self.format_output(output))# ... add %s list of the identifier number
             self.output_message.pack()
+
             self.end_button = tk.Button(self.endtop, text ="End", command = lambda: self.endtop.destroy())
             self.end_button.pack()
 
 
-
-        # fith frame for exit button
-        self.fifframe = tk.Frame(root)  # TODO used for exit button
-        self.fifframe.pack(side=tk.BOTTOM)
-
-        # reset button
-        self.resetbutton = tk.Button(self.forframe, text='Reset', command=lambda: refresh())
-        self.resetbutton.pack(side=tk.LEFT)
-
-        def refresh():
-            self.variable.set("Select an Algorithm")
-            self.number_states = 0
-            self.warehouse_file = ""
-            self.order_file = ""
-            self.button_warehouse.config(text="Load your order here")
-
-        # exitbutton
-        self.exitbutton = tk.Button(self.fifframe, text="Exit", command=lambda: self.master.destroy())
-        self.exitbutton.pack(side=tk.BOTTOM)
-
-    # def upload_order_file(self):
-    #     self.wh.order
-
-
-
-    #creating buttons
-    #read in your order button as a text file
+    # upload a warehouse file and assign the path to the warehouse_file variable
     def upload_warehouse_file(self, event=None):
-        warehouse_file = fd.askopenfile(title = "Select file", filetypes = [('Text files', '*.txt')])#TODO import filedialog not as fd, easier to read
-
+        warehouse_file = tk.filedialog.askopenfile(title = "Select file", filetypes = [('Text files', '*.txt')])#TODO import filedialog not as fd, easier to read
         if warehouse_file:
-            print('Selected:', warehouse_file.name)  #print(self.wh.stock)
             self.warehouse_file = warehouse_file.name
-            wh = warehouse_file.read()
-            print(wh)
             filename = os.path.split(warehouse_file.name)[1]
-            self.button_warehouse.config(text="Warehouse file: %s" %filename)
+            self.button_warehouse.config(text="Warehouse file: {}".format(filename))
 
+    # upload an order file and assign the path to the order_file variable
     def upload_order_file(self, event=None):
-        order_file = fd.askopenfile(title="Select order file", filetypes = [('Text files', '*.txt')])  # TODO import filedialog not as fd, easier to read
+        order_file = tk.filedialog.askopenfile(title="Select order file", filetypes = [('Text files', '*.txt')])  # TODO import filedialog not as fd, easier to read
         if order_file:
-            print('Selected:', order_file.name)
             self.order_file =  order_file.name
-            #order = order_file.read()
             filename = os.path.split(order_file.name)[1]
-            self.button_warehouse.config(text="Order file: %s" % filename)
+            self.button_order.config(text="Order file: {}".format(filename))
 
 
-################################## #TODO add this to ask user before quitting
+##################################
 # from Tkinter import *
 # import tkMessageBox
 #
