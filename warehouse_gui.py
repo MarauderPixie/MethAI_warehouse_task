@@ -83,6 +83,11 @@ class GUI:
         self.states_entry = tk.Entry(self.main_frame, state='disabled', textvariable=variable, text="variable")
         self.states_entry.pack()
 
+        # tinkering
+        self.description = tk.Label(self.main_frame, text="Set the number of states / restarts.")
+        self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
+        self.go_button.pack()
+        self.description.pack()
 
         # final start button
         self.bottom_frame = tk.Frame(root)  # TODO used for reset button and order
@@ -119,20 +124,25 @@ class GUI:
     '''
     def enter_states(self, variable):
         self.algorithm = variable
-        if "go_button" in self.main_frame.winfo_children():
-            self.go_button.forget()
-            self.description.forget()
+
         if self.algorithm == "Random Restart Hill-Climbing" or self.algorithm == "Local Beam Search":
             if self.algorithm == "Random Restart Hill-Climbing":
+                self.go_button.pack_forget()
+                self.description.pack_forget()
                 self.description = tk.Label(self.main_frame, text="Set the number of restarts.")
+                self.go_button.pack()
+                self.description.pack()
             if self.algorithm == "Local Beam Search":
+                self.go_button.pack_forget()
+                self.description.pack_forget()
                 self.description = tk.Label(self.main_frame, text="Set the number of states.")
+                self.go_button.pack()
+                self.description.pack()
             self.states_entry.config(state='normal')
-            self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
-            self.go_button.pack()
-            self.description.pack()
 
         else:
+            self.go_button.pack_forget()
+            self.description.pack_forget()
             self.states_entry.config(state='disabled')
             # print(variable)
             # self.top = tk.Toplevel()
