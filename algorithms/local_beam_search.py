@@ -173,8 +173,8 @@ class BeamSearch(Warehouse):
 
 
 
-
-path_w = "../data/problem1.txt"
-path_o = "../data/order11.txt"
-bs = BeamSearch(path_w, path_o)
-bs.beam_search()
+#
+# path_w = "../data/problem1.txt"
+# path_o = "../data/order11.txt"
+# bs = BeamSearch(path_w, path_o)
+# bs.beam_search()
