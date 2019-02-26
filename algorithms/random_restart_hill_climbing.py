@@ -107,13 +107,15 @@ class RandomRestart(Warehouse):
                   "covered_items": retrieved_items,
                   "goal": self.warehouse.goal
                   }
-        return(number_used_units)
+        return(number_used_units, output)
 
     def random_restart(self):
-        state = self.hill_climbing()
+        result_current = self.hill_climbing()
+
         for _ in range(self.number_states):
-            reset = self.hill_climbing()
-            if reset <= state:
-                state = reset
-        return state
+            result_new = self.hill_climbing()
+            # because less PSUs is better:
+            if result_new[0] <= result_current[0]:
+                result_current = result_new
+        return result_current[1]
 
