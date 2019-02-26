@@ -17,15 +17,14 @@ class SimulatedAnnealing(Warehouse):
 
     def get_fitness(self, state):
         cov = self.get_covered_items(state)
-        covered = set(
-            [item for sublist in cov for item in sublist])  # flattens list of list and throws out duplicats
+        covered = set([item for sublist in cov for item in sublist])  # flattens list of list and throws out duplicats
         y = sum(state)  # number of PSUs used
         fit = round(len(covered) - (0.9 * y), 3)  # fit is the number of covered items minus the number of PSUs
         return len(covered), fit
 
     # with every step, the temperature decreases by 0.0005
     def update_temperature(self, t):
-        return t - 0.0005
+        return t - 0.001
 
     # one neighbor or more neighbors?
     def get_neighbors(self, test):
@@ -97,11 +96,11 @@ class SimulatedAnnealing(Warehouse):
         retrieved_items = len(self.get_covered_items(state_best))
 
         cov = self.get_fitness(state_best)[0]
-        # print("iterations:", step,
-        #       "\nPSUs used:", sum(state_best),
-        #       "\ncovered:", cov,
-        #       "\nItems in order:", goal,
-        #       "\nContent of used PSUs:", self.translate_state(state_best))
+        print("iterations:", step,
+              "\nPSUs used:", sum(state_best),
+              "\ncovered:", cov,
+              "\nItems in order:", goal,
+              "\nContent of used PSUs:", self.translate_state(state_best))
         # return state_best, sum(state_best), self.translate_state(state_best)
         output = {"number_units": sum(state_best),
                   "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
