@@ -166,7 +166,7 @@ class BeamSearch(Warehouse):
                   "covered_items": retrieved_items,
                   "goal": self.warehouse.goal
                   }
-        print(output)
+        # print(output)
         return output
         # for i in self.translate_state(state_best):
         #     print(self.warehouse.decode_items(i[1]))
