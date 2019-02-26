@@ -101,11 +101,12 @@ class RandomRestart(Warehouse):
         retrieved_items = len(self.get_covered_items(state))
 
         number_used_units = sum(state)
-        print("iterations:", k,
-              "\nPSUs used:", number_used_units,
-              "\ncovered:", retrieved_items,
-              "\nItems in order:", self.warehouse.goal,
-              "\nContent of used PSUs:", retrieved_units)
+        output = {"number_units": number_used_units,
+                  "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
+                  "iterations": k,
+                  "covered_items": retrieved_items,
+                  "goal": self.warehouse.goal
+                  }
         return(number_used_units)
 
     def random_restart(self):
