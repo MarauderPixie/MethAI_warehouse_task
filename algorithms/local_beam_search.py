@@ -159,7 +159,7 @@ class BeamSearch(Warehouse):
         retrieved_units = self.retrieve_units(state_best)
 
         Noused = sum(state_best)
-        print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.retrieve_units(state_best))
+        # print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.retrieve_units(state_best))
 
         output = {"number_units": Noused,
                   "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
