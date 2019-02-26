@@ -116,11 +116,3 @@ class RandomRestart(Warehouse):
                 state = reset
         return state
 
-# path_w = "../data/problem1.txt"
-# path_o = "../data/order11.txt"
-# rrhc = RandomRestart(path_w, path_o)
-# rrhc.random_restart(Noresets = 0)
-#path_w = "data/problem1.txt"
-#path_o = "data/order11.txt"
-#rrhc = RandomRestart(path_w, path_o)
-#rrhc.random_restart(Noresets = 0)
