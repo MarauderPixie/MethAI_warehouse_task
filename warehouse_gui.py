@@ -12,7 +12,6 @@ from algorithms.random_restart_hill_climbing import RandomRestart
 # TODO [x] bind all algorithms to each option button
 # TODO [x] add button display stock and order (open file? print? open popup?)
 # TODO [x] add test cases for 1. no file selected 2. missing arguments for algorithm option 3. missing warehouse or order file
-# TODO [] add some information about what each button does
 # TODO [x] find nice way to display output of each algorithm (messsage popup?)
 # TODO [x] rename variables and give them better descriptive names
 # TODO [x] fix initial frame size
