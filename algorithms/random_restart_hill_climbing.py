@@ -101,26 +101,21 @@ class RandomRestart(Warehouse):
         retrieved_items = len(self.get_covered_items(state))
 
         number_used_units = sum(state)
-        print("iterations:", k,
-              "\nPSUs used:", number_used_units,
-              "\ncovered:", retrieved_items,
-              "\nItems in order:", self.warehouse.goal,
-              "\nContent of used PSUs:", retrieved_units)
-        return(number_used_units)
+        output = {"number_units": number_used_units,
+                  "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
+                  "iterations": k,
+                  "covered_items": retrieved_items,
+                  "goal": self.warehouse.goal
+                  }
+        return(number_used_units, output)
 
     def random_restart(self):
-        state = self.hill_climbing()
-        for _ in range(self.number_states):
-            reset = self.hill_climbing()
-            if reset <= state:
-                state = reset
-        return state
+        result_current = self.hill_climbing()
 
-# path_w = "../data/problem1.txt"
-# path_o = "../data/order11.txt"
-# rrhc = RandomRestart(path_w, path_o)
-# rrhc.random_restart(Noresets = 0)
-#path_w = "data/problem1.txt"
-#path_o = "data/order11.txt"
-#rrhc = RandomRestart(path_w, path_o)
-#rrhc.random_restart(Noresets = 0)
+        for _ in range(self.number_states):
+            result_new = self.hill_climbing()
+            # because less PSUs is better:
+            if result_new[0] <= result_current[0]:
+                result_current = result_new
+        return result_current[1]
+

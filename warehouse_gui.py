@@ -1,6 +1,5 @@
 import os
 import tkinter as tk
-import webbrowser as wb
 from tkinter import Tk
 from tkinter import filedialog
 from tkinter import ttk
@@ -13,14 +12,12 @@ from algorithms.random_restart_hill_climbing import RandomRestart
 # TODO [x] bind all algorithms to each option button
 # TODO [x] add button display stock and order (open file? print? open popup?)
 # TODO [x] add test cases for 1. no file selected 2. missing arguments for algorithm option 3. missing warehouse or order file
-# TODO [] add some information about what each button does
 # TODO [x] find nice way to display output of each algorithm (messsage popup?)
 # TODO [x] rename variables and give them better descriptive names
 # TODO [x] fix initial frame size
 # TODO [] fix position of processing, reset and exit buttons
 # TODO [x] fix bug where states entry box appears a million times if you click on the algorithm again
-# TODO [] add this to ask user before quitting maybe?
-# TODO [] fix display of order_file when resetting
+# TODO [x] fix display of order_file-button when resetting
 
 class GUI:
     def __init__(self, master):
@@ -98,18 +95,11 @@ class GUI:
         self.processing_button = tk.Button(self.bottom_frame, text="Retrieve Order", fg="red", command= self.start_processing)
         self.processing_button.pack(side = tk.LEFT)
 
-        self.wh_open = tk.Button(self.bottom_frame, text="Texteditor", command=lambda: self.open_textfile())
-        self.wh_open.pack(side = tk.LEFT)
-
-
+        # Exit the program
         self.last_frame = tk.Frame(root)  # TODO used for exit button
         self.last_frame.pack(side=tk.BOTTOM)
-        # Exit the program
         self.exit_button = tk.Button(self.last_frame, text="Exit", command=lambda: self.master.destroy())
         self.exit_button.pack(side=tk.BOTTOM)
-
-    def open_textfile(self):
-        wb.open(self.warehouse_file)
 
     def refresh(self):
         self.states_entry.forget()
@@ -120,6 +110,7 @@ class GUI:
         self.warehouse_file = ""
         self.order_file = ""
         self.button_warehouse.config(text="Load your warehouse here")
+        self.button_order.config(text="Load your order here")
 
 
     '''
@@ -182,15 +173,9 @@ class GUI:
         okay_button.pack()
     
     def format_output(self, dict):
-        with open(self.order_file) as f:
-            for line in f:
-                order = line.strip().split(" ")
-        
-        output_string = "Items ordered:\n{}".format(", ".join(order))
-
-        output_string += "\n\nRetrieved {} of {} items in your order using {} PSUs".format(dict["covered_items"],
-                                                                                           dict["goal"],
-                                                                                           dict["number_units"])
+        output_string = "Retrieved {} of {} items in your order using {} PSUs".format(dict["covered_items"],
+                                                                                      dict["goal"],
+                                                                                      dict["number_units"])
         for unit in dict["units"]:
             output_string += "\n\nUnit #{}, containing the following items: \n {}".format(unit[0], ', '.join(unit[1]))
 

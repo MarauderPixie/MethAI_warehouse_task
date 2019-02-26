@@ -159,14 +159,14 @@ class BeamSearch(Warehouse):
         retrieved_units = self.retrieve_units(state_best)
 
         Noused = sum(state_best)
-        print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.retrieve_units(state_best))
+        # print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.retrieve_units(state_best))
 
         output = {"number_units": Noused,
                   "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
                   "covered_items": retrieved_items,
                   "goal": self.warehouse.goal
                   }
-        print(output)
+        # print(output)
         return output
         # for i in self.translate_state(state_best):
         #     print(self.warehouse.decode_items(i[1]))
@@ -178,3 +178,4 @@ class BeamSearch(Warehouse):
 # path_o = "../data/order11.txt"
 # bs = BeamSearch(path_w, path_o)
 # bs.beam_search()
+
