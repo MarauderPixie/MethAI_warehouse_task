@@ -170,11 +170,3 @@ class BeamSearch(Warehouse):
         return output
         # for i in self.translate_state(state_best):
         #     print(self.warehouse.decode_items(i[1]))
-
-
-
-
-path_w = "../data/problem1.txt"
-path_o = "../data/order11.txt"
-bs = BeamSearch(path_w, path_o)
-bs.beam_search()
