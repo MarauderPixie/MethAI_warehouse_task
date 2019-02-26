@@ -85,7 +85,7 @@ class SimulatedAnnealing(Warehouse):
         state = state_0.copy()
         state_best = state_0.copy()
 
-        while temperature > 1e-3:
+        while goal > self.get_fitness(state_best)[0]:
             fitness_best_state = self.get_fitness(state_best)
             state = self.make_move(state, temperature)
             if self.get_fitness(state)[1] > fitness_best_state[1]:
@@ -96,15 +96,16 @@ class SimulatedAnnealing(Warehouse):
         retrieved_items = len(self.get_covered_items(state_best))
 
         cov = self.get_fitness(state_best)[0]
-        print("iterations:", step,
-              "\nPSUs used:", sum(state_best),
-              "\ncovered:", cov,
-              "\nItems in order:", goal,
-              "\nContent of used PSUs:", self.translate_state(state_best))
+
+        # print("\niterations:", step,
+        #       "\nPSUs used:", sum(state_best),
+        #       "\ncovered:", cov,
+        #       "\nItems in order:", goal,
+        #       "\nContent of used PSUs:", self.translate_state(state_best))
         # return state_best, sum(state_best), self.translate_state(state_best)
         output = {"number_units": sum(state_best),
                   "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
-                  "covered_items": retrieved_items,
+                  "covered_items": cov,
                   "goal": self.warehouse.goal
                   }
         return output
