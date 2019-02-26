@@ -98,14 +98,12 @@ class BeamSearch(Warehouse):
         return neighborhood
 
 
-    #get best fit
+    '''
+        helper function for returning the smallest value of an array of tuples based on the second element 
+    '''
     def get_smallest_values(self, arr, n):
-        # Sort the given array arr in reverse
-        # order.
-        #arr.sort(reverse=True)
         best_fit = []
         arr.sort(key=lambda tup: tup[1][1], reverse=True)
-        # Print the first kth largest elements
         if len(arr) < n:
             return  [n[0] for n in arr]
         else:
@@ -113,21 +111,19 @@ class BeamSearch(Warehouse):
                 best_fit.append(arr[i][0])
             return best_fit
 
-
+    '''
+        generate neighbors for each state and return the n best states. 
+        if no neighbor improves the value, return the state
+    '''
     def find_best_neighbors(self, states):
         updated_states = []
+        for state in states:
+            updated_states.append((state, self.get_fitness(state)))
         neighbors = self.get_nhb(states)
         for neighbor in neighbors:
-            fitness_neighbor = self.get_fitness(neighbor)
-            if fitness_neighbor[1] < any([self.get_fitness(state)[1] for state in states]):
-                updated_states.append((neighbor, fitness_neighbor))
-        # if no neighbor improves the values, return the initial states
-        if not updated_states:
-            print("no neigbor improved value")
-            return states
-        #print(updated_states)
+            updated_states.append((neighbor, self.get_fitness(neighbor)))
         best_fit = self.get_smallest_values(updated_states, self.beam_width)
-        # print("sum", [sum(n) for n in best_fit])
+
         return best_fit
 
     def explore(self, state, step=None):
@@ -163,21 +159,22 @@ class BeamSearch(Warehouse):
         retrieved_units = self.retrieve_units(state_best)
 
         Noused = sum(state_best)
-        # print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.translate_state(state_best))
+        print("beam search PSUs used:", Noused, "covered:", cov, "Items in order:", self.warehouse.goal, "items", self.retrieve_units(state_best))
 
         output = {"number_units": Noused,
                   "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
                   "covered_items": retrieved_items,
                   "goal": self.warehouse.goal
                   }
+        print(output)
         return output
         # for i in self.translate_state(state_best):
         #     print(self.warehouse.decode_items(i[1]))
 
 
 
-#
-# path_w = "../data/problem1.txt"
-# path_o = "../data/order11.txt"
-# bs = BeamSearch(path_w, path_o)
-# bs.beam_search()
+
+path_w = "../data/problem1.txt"
+path_o = "../data/order11.txt"
+bs = BeamSearch(path_w, path_o)
+bs.beam_search()
