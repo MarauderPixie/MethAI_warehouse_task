@@ -113,7 +113,7 @@ class FirstChoiceHillClimbing(Warehouse):
                   "covered_items" : retrieved_items,
                   "goal" : self.warehouse.goal
         }
-        print(output.items())
+        # print(output.items())
         return output
 
 

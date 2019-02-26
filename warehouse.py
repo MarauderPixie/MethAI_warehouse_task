@@ -31,7 +31,7 @@ class Warehouse:
                     units.append(line.strip().split(" "))
         return stock, units
 
-    #return a dictionary where each item is assigned a number
+    # return a dictionary where each item is assigned a number
     def get_stock_count(self, stock):
         stock_count = dict([(val, idx) for idx, val in enumerate(stock,1)])
         return stock_count

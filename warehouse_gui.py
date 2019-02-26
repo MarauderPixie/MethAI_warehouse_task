@@ -1,5 +1,6 @@
 import os
 import tkinter as tk
+import webbrowser as wb
 from tkinter import Tk
 from tkinter import filedialog
 from tkinter import ttk
@@ -10,15 +11,16 @@ from algorithms.hill_climbing import HillClimbing
 from algorithms.random_restart_hill_climbing import RandomRestart
 
 # TODO [x] bind all algorithms to each option button
-# TODO [] add button display stock and order (open file? print? open popup?)
+# TODO [x] add button display stock and order (open file? print? open popup?)
 # TODO [x] add test cases for 1. no file selected 2. missing arguments for algorithm option 3. missing warehouse or order file
 # TODO [] add some information about what each button does
 # TODO [x] find nice way to display output of each algorithm (messsage popup?)
 # TODO [x] rename variables and give them better descriptive names
 # TODO [x] fix initial frame size
 # TODO [] fix position of processing, reset and exit buttons
-# TODO [] fix bug where states entry box appears a million times if you click on the algorithm again
+# TODO [x] fix bug where states entry box appears a million times if you click on the algorithm again
 # TODO [] add this to ask user before quitting maybe?
+# TODO [] fix display of order_file when resetting
 
 class GUI:
     def __init__(self, master):
@@ -78,32 +80,11 @@ class GUI:
         self.algorithm_button = tk.OptionMenu(self.main_frame, self.variable, *OPTIONS, command=self.enter_states)
         self.algorithm_button.pack()
 
-        # this will be used to read in a number of states entered by the user
+        # initialize state/restart number input elements
         variable = tk.IntVar()
         self.states_entry = tk.Entry(self.main_frame, state='disabled', textvariable=variable, text="variable")
-        self.states_entry.pack()
-
-
-
-            #    self.variable.trace("w", self.change_states)
-    #    if self.variable.get() == "Parallel Hill-Climbing":      # About window
-    #        top.title("Parallel Hill-Climbing")
-    #        toplabel = Label(top,text= "Select number of states")
-    #        toplabel.pack()
-    #        button = tk.Entry(top)
-    #        button.grid()
-    #        top.grid()
-    #    if self.variable.get() == "Local Beam Search":
-    #        top
-
-        #if self.algobut == OPTIONS[2] or self.algobut == OPTIONS[4]:
-        #    stat_num = tk.Entry(self.secframe, text="select number of states: ")
-        #    stat_num.pack()
-        #self.select_steps = tk.Entry(self.secframe, text = "select number of steps")
-        #self.select_steps.pack()
-        # local beam search brauchen wir config numb of states
-
-        #sel_order = self.upload_warehouse_file() #thats why it is always opening a window before anything
+        self.description = tk.Label(self.main_frame, text="Set the number of states / restarts.")
+        self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
 
         # final start button
         self.bottom_frame = tk.Frame(root)  # TODO used for reset button and order
@@ -117,6 +98,9 @@ class GUI:
         self.processing_button = tk.Button(self.bottom_frame, text="Retrieve Order", fg="red", command= self.start_processing)
         self.processing_button.pack(side = tk.LEFT)
 
+        self.wh_open = tk.Button(self.bottom_frame, text="Texteditor", command=lambda: self.open_textfile())
+        self.wh_open.pack(side = tk.LEFT)
+
 
         self.last_frame = tk.Frame(root)  # TODO used for exit button
         self.last_frame.pack(side=tk.BOTTOM)
@@ -124,12 +108,18 @@ class GUI:
         self.exit_button = tk.Button(self.last_frame, text="Exit", command=lambda: self.master.destroy())
         self.exit_button.pack(side=tk.BOTTOM)
 
+    def open_textfile(self):
+        wb.open(self.warehouse_file)
+
     def refresh(self):
+        self.states_entry.forget()
+        self.go_button.forget()
+        self.description.forget()
         self.variable.set("Select an Algorithm")
         self.number_states = 0
         self.warehouse_file = ""
         self.order_file = ""
-        self.button_warehouse.config(text="Load your order here")
+        self.button_warehouse.config(text="Load your warehouse here")
 
 
     '''
@@ -137,12 +127,19 @@ class GUI:
     '''
     def enter_states(self, variable):
         self.algorithm = variable
+        self.states_entry.pack_forget()
+        self.go_button.pack_forget()
+        self.description.pack_forget()
+
         if self.algorithm == "Random Restart Hill-Climbing" or self.algorithm == "Local Beam Search":
-            self.description = tk.Label(self.main_frame, text="Set the number of states.")
-            self.states_entry.config(state='normal')
-            self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
-            self.go_button.pack()
+            if self.algorithm == "Random Restart Hill-Climbing":
+                self.description = tk.Label(self.main_frame, text="Set the number of restarts:")
+            if self.algorithm == "Local Beam Search":
+                self.description = tk.Label(self.main_frame, text="Set the number of states:")
             self.description.pack()
+            self.states_entry.pack()
+            self.go_button.pack()
+            self.states_entry.config(state='normal')
 
         else:
             self.states_entry.config(state='disabled')
@@ -174,7 +171,7 @@ class GUI:
 
     '''
         Popup message if user did not enter an integer
-    '''
+    '''        
     def popup_message(self):
         popup = tk.Tk()
         popup.wm_title("!")
@@ -183,13 +180,19 @@ class GUI:
         label.pack(side="top", fill="x", pady=10)
         okay_button = ttk.Button(popup, text="Okay", command=popup.destroy)
         okay_button.pack()
-
+    
     def format_output(self, dict):
-        output_string = "Retrieved {} of {} items in your order using {} PSUs\n".format(dict["covered_items"],
-                                                                                      dict["goal"],
-                                                                                      dict["number_units"])
+        with open(self.order_file) as f:
+            for line in f:
+                order = line.strip().split(" ")
+        
+        output_string = "Items ordered:\n{}".format(", ".join(order))
+
+        output_string += "\n\nRetrieved {} of {} items in your order using {} PSUs".format(dict["covered_items"],
+                                                                                           dict["goal"],
+                                                                                           dict["number_units"])
         for unit in dict["units"]:
-            output_string = output_string + "Unit no. {} containing following items: \n {}\n".format(unit[0], ','.join(unit[1]))
+            output_string += "\n\nUnit #{}, containing the following items: \n {}".format(unit[0], ', '.join(unit[1]))
 
         return output_string
 
@@ -210,7 +213,7 @@ class GUI:
             self.errorbutton = tk.Button(self.top, text = "Ooops, you forgot to load your order, try again!",command= lambda: self.top.destroy())
             self.errorbutton.pack()
 
-        #perform Local Beam Search
+        # perform Local Beam Search
         if self.algorithm == "Local Beam Search":
             # check if a correct number of states is entered
             if self.number_states < 1:
@@ -231,7 +234,7 @@ class GUI:
                 self.end_button.pack()
 
 
-        #perform First Choice Hill Climbing
+        # perform First Choice Hill Climbing
         if self.algorithm == "First-Choice Hill-Climbing":
             self.fc = FirstChoiceHillClimbing(self.warehouse_file, self.order_file)
             output = self.fc.first_choice_hill_climbing()
@@ -278,7 +281,7 @@ class GUI:
             self.end_button = tk.Button(self.endtop, text ="End", command = lambda: self.endtop.destroy())
             self.end_button.pack()
 
-        #perform Hill Climbing
+        # perform Hill Climbing
         if self.algorithm == "Hill-Climbing":
             self.hc = HillClimbing(self.warehouse_file, self.order_file)
             output = self.hc.hill_climbing()
