@@ -17,8 +17,7 @@ from algorithms.random_restart_hill_climbing import RandomRestart
 # TODO [x] fix initial frame size
 # TODO [] fix position of processing, reset and exit buttons
 # TODO [x] fix bug where states entry box appears a million times if you click on the algorithm again
-# TODO [] add this to ask user before quitting maybe?
-# TODO [] fix display of order_file when resetting
+# TODO [x] fix display of order_file-button when resetting
 
 class GUI:
     def __init__(self, master):
@@ -111,6 +110,7 @@ class GUI:
         self.warehouse_file = ""
         self.order_file = ""
         self.button_warehouse.config(text="Load your warehouse here")
+        self.button_order.config(text="Load your order here")
 
 
     '''
