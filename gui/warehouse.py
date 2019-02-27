@@ -49,7 +49,7 @@ class Warehouse:
         return encoded
 
     # decode the list of number items to natural language
-    def decode_items(self, encoded_items_list): # TODO remove stock from parameter list, use self.stock_count (?) instead
+    def decode_items(self, encoded_items_list):
         stock_count = dict([v, k] for k, v in self.stock_count.items())
         decoded = [stock_count.get(item) for item in encoded_items_list]
 

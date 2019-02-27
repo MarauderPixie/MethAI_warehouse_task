@@ -12,7 +12,7 @@ The user is only required to execute `main.py` in order to start the program.
 
 ### `warehouse.py`
 
-This script defines a `Warehouse` class, which is used to read warehouse and order files, translates items to numbers and defines the neighborhood used by the algorithms.
+This script defines a `Warehouse` class, which is used to read warehouse and order files, encodes items to numbers and prunes the list of PSUs that will be used for the algorithms for better efficiency
 
 ### `warehouse_gui.py`
 

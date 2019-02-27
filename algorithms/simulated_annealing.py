@@ -6,9 +6,8 @@
 import random
 import numpy as np
 import math
-from warehouse import Warehouse
+from gui.warehouse import Warehouse
 
-#TODO iterations is always 5998, is that a problem? seems like a lot
 
 class SimulatedAnnealing(Warehouse):
     def __init__(self, filepath_warehouse, filepath_order):
@@ -126,8 +125,3 @@ class SimulatedAnnealing(Warehouse):
                   }
         return output
 
-
-# path_w = "problem1.txt"
-# path_o = "order11.txt"
-# s = SimulatedAnnealing(path_w, path_o)
-# s.simulated_annealing()

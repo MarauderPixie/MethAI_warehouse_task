@@ -12,16 +12,6 @@ from algorithms.simulated_annealing import SimulatedAnnealing
 from algorithms.hill_climbing import HillClimbing
 from algorithms.random_restart_hill_climbing import RandomRestart
 
-# TODO [x] bind all algorithms to each option button
-# TODO [x] add button display stock and order (open file? print? open popup?)
-# TODO [x] add test cases for 1. no file selected 2. missing arguments for algorithm option 3. missing warehouse or order file
-# TODO [x] find nice way to display output of each algorithm (messsage popup?)
-# TODO [x] rename variables and give them better descriptive names
-# TODO [x] fix initial frame size
-# TODO [] fix position of processing, reset and exit buttons
-# TODO [x] fix bug where states entry box appears a million times if you click on the algorithm again
-# TODO [x] fix display of order_file-button when resetting
-
 class GUI:
     def __init__(self, master):
         self.master = master
@@ -80,7 +70,7 @@ class GUI:
         self.go_button = tk.Button(self.main_frame, text="Enter", command=self.states)
 
         # final start button
-        self.bottom_frame = tk.Frame(self.master)  # TODO used for reset button and order
+        self.bottom_frame = tk.Frame(self.master)
         self.bottom_frame.pack(side=tk.LEFT)
 
         # reset all variables, including warehouse and order
@@ -267,7 +257,7 @@ class GUI:
 
     # upload a warehouse file and assign the path to the warehouse_file variable
     def upload_warehouse_file(self, event=None):
-        warehouse_file = tk.filedialog.askopenfile(title = "Select file", filetypes = [('Text files', '*.txt')])#TODO import filedialog not as fd, easier to read
+        warehouse_file = tk.filedialog.askopenfile(title = "Select file", filetypes = [('Text files', '*.txt')])
         if warehouse_file:
             self.warehouse_file = warehouse_file.name
             filename = os.path.split(warehouse_file.name)[1]
@@ -275,7 +265,7 @@ class GUI:
 
     # upload an order file and assign the path to the order_file variable
     def upload_order_file(self, event=None):
-        order_file = tk.filedialog.askopenfile(title="Select order file", filetypes = [('Text files', '*.txt')])  # TODO import filedialog not as fd, easier to read
+        order_file = tk.filedialog.askopenfile(title="Select order file", filetypes = [('Text files', '*.txt')])
         if order_file:
             self.order_file =  order_file.name
             filename = os.path.split(order_file.name)[1]

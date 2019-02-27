@@ -4,7 +4,7 @@
 """
 
 import random
-from warehouse import Warehouse
+from gui.warehouse import Warehouse
 import numpy as np
 
 class RandomRestart(Warehouse):
