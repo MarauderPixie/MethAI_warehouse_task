@@ -35,8 +35,8 @@ This project was written with *Python 3.7* and uses the following modules (versi
 
 ## Authors
 
-Luana Vaduva
-Tobias
-Cora
-Maren
+- Luana Vaduva
+- Tobias Anton
+- Cora Teichman
+- Maren Born
 
