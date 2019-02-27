@@ -159,9 +159,10 @@ class GUI:
         okay_button.pack()
     
     def format_output(self, dict):
-        output_string = "Retrieved {} of {} items in your order using {} PSUs".format(dict["covered_items"],
+        output_string = "Retrieved {} of {} items in your order using {} PSUs \n {} iterations".format(dict["covered_items"],
                                                                                       dict["goal"],
-                                                                                      dict["number_units"])
+                                                                                      dict["number_units"],
+                                                                                      dict["iterations"])
         for unit in dict["units"]:
             output_string += "\n\nUnit #{}, containing the following items: \n {}".format(unit[0], ', '.join(unit[1]))
 
