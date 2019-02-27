@@ -4,7 +4,7 @@
 """
 import random
 import numpy as np
-from gui.warehouse import Warehouse
+from warehouse import Warehouse
 
 class BeamSearch(Warehouse):
     def __init__(self, filepath_warehouse, filepath_order, beam_width):

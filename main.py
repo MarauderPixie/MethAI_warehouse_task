@@ -1,4 +1,4 @@
-from gui.warehouse_gui import GUI
+from warehouse_gui import GUI
 from tkinter import Tk
 
 

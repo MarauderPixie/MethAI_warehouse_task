@@ -8,7 +8,7 @@ When executing a search, the user will be given results in the form of a popup w
 
 ## Overall structure of the code
 
-The user is only required to execute `main.py` in order to start the program.
+In order to start the program the user is only required to execute the command `python main.py` inside the project directory
 
 ### `warehouse.py`
 
@@ -32,3 +32,11 @@ This project was written with *Python 3.7* and uses the following modules (versi
 - `os`
 - `random`
 - `tkinter`
+
+## Authors
+
+Luana Vaduva
+Tobias
+Cora
+Maren
+

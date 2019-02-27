@@ -4,7 +4,7 @@
 """
 
 import random
-from gui.warehouse import Warehouse
+from warehouse import Warehouse
 import numpy as np
 
 class HillClimbing(Warehouse):

@@ -6,7 +6,7 @@
 import random
 import numpy as np
 import math
-from gui.warehouse import Warehouse
+from warehouse import Warehouse
 
 
 class SimulatedAnnealing(Warehouse):
