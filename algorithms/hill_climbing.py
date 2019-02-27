@@ -1,15 +1,19 @@
+"""
+    Class generates a neighborhood and explores it using
+    first choice hill climbing algorithm.
+"""
+
 import random
 from warehouse import Warehouse
 import numpy as np
-
 
 class HillClimbing(Warehouse):
     def __init__(self, filepath_warehouse, filepath_order):
         self.warehouse = Warehouse(filepath_warehouse, filepath_order)
 
     '''
-        return a list of all items from the order covered in the particular state
-        for the goal to be reached, number of covered items must be equal to number of items in order
+        Return a list of all items from the order covered in the particular state
+        For the goal to be reached, number of covered items must be equal to number of items in order
     '''
 
     def get_covered_items(self, state):
@@ -24,10 +28,9 @@ class HillClimbing(Warehouse):
         return items
 
     '''
-        calculate the cost of a state 
-        cost is the number of covered items in that state minus the number of PSUs used 
+        Calculate the cost of a state 
+        Cost is the number of covered items in that state minus the number of PSUs used 
     '''
-
     def get_cost(self, state):
         covered_items = self.get_covered_items(state)
         units_used = sum(state)
@@ -36,25 +39,25 @@ class HillClimbing(Warehouse):
         return cost
 
     '''
-        generate neighbors of a state by randomly setting two units to 0 with 100% probability, and one with 50% probability
+        Generate neighbors of a state by randomly setting two units to 0 with 100% probability, and one with 50% probability
     '''
-    def get_neighbor(self, state):
-        nhb = state.copy()
-        x = random.choice(range(0, len(nhb) - 1))
-        y = random.choice(range(0, len(nhb) - 1))
-        u = random.choice(range(0, len(nhb) - 1))
+    def get_neighbors(self, state):
+        neighbor = state.copy()
+        x = random.choice(range(0, len(neighbor) - 1))
+        y = random.choice(range(0, len(neighbor) - 1))
+        u = random.choice(range(0, len(neighbor) - 1))
         z = np.random.choice([0, 1], 1)
-        nhb[x] = 0
-        nhb[u] = 0
+        neighbor[x] = 0
+        neighbor[u] = 0
         if z == 0:
-            nhb[y] = 0
+            neighbor[y] = 0
         else:
-            nhb[y] = 1
+            neighbor[y] = 1
 
-        return nhb
+        return neighbor
 
     '''
-        given a state, return a tuple containing the corresponding PSU and a list of the items inside it
+        Given a state, return a tuple containing the corresponding PSU and a list of the items inside it
     '''
     def retrieve_units(self, state):
         retrieved = []
@@ -66,12 +69,12 @@ class HillClimbing(Warehouse):
         return retrieved
 
     '''
-        explore new states to improve the objective function
+        Explore new states to improve the objective function
     '''
-    def make_move_hill(self, state):
-        nhb_1 = self.get_neighbor(state)
-        nhb_2 = self.get_neighbor(state)
-        nhb_3 = self.get_neighbor(state)
+    def explore(self, state):
+        nhb_1 = self.get_neighbors(state)
+        nhb_2 = self.get_neighbors(state)
+        nhb_3 = self.get_neighbors(state)
         current = self.get_cost(state)
         new_1 = self.get_cost(nhb_1)
         new_2 = self.get_cost(nhb_2)
@@ -90,34 +93,31 @@ class HillClimbing(Warehouse):
         return nhb if current <= new else state
 
     '''
-    perform hill climbing 
+        Perform hill climbing 
+        Return the output in the shape of a dictionary containing the number of used units, a tuple with
+        their index and the items they contain, the items from the order covered and the number of iterations
     '''
     def hill_climbing(self):
-        L = len(self.warehouse.relevant_units)
-        state = np.random.choice([0, 1], size=(L, ), p=[1-self.warehouse.goal/L, self.warehouse.goal/L])  #rendom array 0=PSU not used 1=PSUused
-        k = 0
+        length = len(self.warehouse.relevant_units)
+        # generate the initial state as an array of 1s and 0s with probability based on the goal
+        # 1 = PSU is used 0 = PSU is not used
+        state = np.random.choice([0, 1], size=(length, ), p=[1-self.warehouse.goal/length, self.warehouse.goal/length])
+        step = 0
 
         while (len(self.get_covered_items(state)) != self.warehouse.goal):
-            state = self.make_move_hill(state)
-            k += 1
-
+            state = self.explore(state)
+            step += 1
 
         retrieved_units = self.retrieve_units(state)
-
         retrieved_items = len(self.get_covered_items(state))
-
         number_used_units = sum(state)
-        output = {"number_units": number_used_units,
-                  "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
-                  "iterations": k,
+        #decode the items from numbers to natural language
+        units = [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units]
+        output = {"goal": self.warehouse.goal,
+                  "iterations": step,
                   "covered_items": retrieved_items,
-                  "goal": self.warehouse.goal
+                  "number_units": number_used_units,
+                  "units": units,
                   }
 
         return output
-        # print("iterations:", k,
-        #       "\nPSUs used:", number_used_units,
-        #       "\ncovered:", retrieved_items,
-        #       "\nItems in order:", self.warehouse.goal,
-        #       "\nContent of used PSUs:", retrieved_units)
-

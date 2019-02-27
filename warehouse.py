@@ -1,3 +1,8 @@
+"""
+    This module provides a way of easily processing the order and warehouse files
+    It reads in .txt files with the corresponding format, encodes the items and stores them in appropriate lists
+    It also prunes the number of PSUs according to the order for faster processing
+"""
 class Warehouse:
     def __init__(self, filepath_warehouse, filepath_order):
         self.stock, units = self.fill_up_warehouse(filepath_warehouse)
@@ -8,7 +13,9 @@ class Warehouse:
         self.goal = len(self.order)
         self.indices_relevant_units, self.relevant_units = self.prune()
 
-    # Helper functions to read in files, store and encode the input
+    '''
+        Helper functions to read in files, store and encode the input
+    '''
 
     # read in the order file
     def read_in_order(self, filepath_order):
@@ -41,31 +48,24 @@ class Warehouse:
         encoded = [stock.get(item) for item in items_list]
         return encoded
 
-
+    # decode the list of number items to natural language
     def decode_items(self, encoded_items_list): # TODO remove stock from parameter list, use self.stock_count (?) instead
         stock_count = dict([v, k] for k, v in self.stock_count.items())
         decoded = [stock_count.get(item) for item in encoded_items_list]
 
         return decoded
-        # for i in range(1, len(encoded_items_list)):
-        #     print(list(stock.keys())[list(stock.values()).index(encoded_items_list[i])])
 
-
-    # keep only the PSUs that contain at least one of the items in the order, with only the relevant item in them
-    # returns a list whose length corresponds to the sum of all units containing relevant items
+    '''
+        Prune the list of PSUs and Keep only those that contain at least one of the items in the order, with only the
+        relevant item in them
+        Returns a list whose length corresponds to the sum of all units containing relevant items
+    '''
     def prune(self):
         relevant_units = []
         for unit in self.encoded_warehouse:
             relevant_units.append([item for item in unit if item in self.encoded_order])
         psu_index = [i for i, j in enumerate(relevant_units) if j]
-
         relevant_units = list(filter(None, relevant_units))
 
-        # get indices of relevant PSUs and remove "empty" PSUs from list TODO where is this used?
         return psu_index,relevant_units
 
-
-# path_w = "data/problem1.txt"
-# path_o = "data/order11.txt"
-# w = Warehouse(path_w, path_o)
-# w.prune()

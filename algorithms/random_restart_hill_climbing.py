@@ -1,3 +1,8 @@
+"""
+    Class generates a neighborhood and explores it using
+    random restart hill climbing algorithm with configurable number of states.
+"""
+
 import random
 from warehouse import Warehouse
 import numpy as np
@@ -6,26 +11,26 @@ class RandomRestart(Warehouse):
     def __init__(self, filepath_warehouse, filepath_order, number_states):
         self.warehouse = Warehouse(filepath_warehouse, filepath_order)
         self.number_states = number_states
+        self.step = 0
 
     '''
-        return a list of all items from the order covered in the particular state
-        for the goal to be reached, number of covered items must be equal to number of items in order
+        Return a list of all items from the order covered in the particular state
+        For the goal to be reached, number of covered items must be equal to number of items in order
     '''
-
     def get_covered_items(self, state):
         items = []
         # if an index of the state is 1, retrieve the items from psu with the same index
         for i in range(len(state)):
             if state[i] == 1:
                 items.append(self.warehouse.relevant_units[i])
-        # flatten list of list and throw out duplicats
+        # flatten list of list and throw out duplicates
         items = set([item for sublist in items for item in sublist])
 
         return items
 
     '''
-        calculate the cost of a state
-        cost is the number of covered items in that state minus the number of PSUs used
+        Calculate the cost of a state
+        Cost is the number of covered items in that state minus the number of PSUs used
     '''
 
     def get_cost(self, state):
@@ -36,6 +41,7 @@ class RandomRestart(Warehouse):
         return cost
 
     '''
+        Generate neighbors of a state by randomly setting two units to 0 with 100% probability, and one with 50% probability
     '''
     def get_neighbor(self, state):
         nhb = state.copy()
@@ -53,9 +59,9 @@ class RandomRestart(Warehouse):
         return nhb
 
     '''
-        given a state, return a tuple containing the corresponding PSU and a list of the items inside it
+        Given a state, return a tuple containing the corresponding PSU and a list of the items inside it
     '''
-    def retrieve_units(self, state):  # TODO rename retrieve_psus() or smth?
+    def retrieve_units(self, state):
         retrieved = []
         for i in range(len(state)):
             if state[i] == 1:
@@ -64,7 +70,11 @@ class RandomRestart(Warehouse):
                 retrieved.append((index, items))
         return retrieved
 
-    def make_move_hill(self, state):
+    '''
+        Explore new states to improve the objective function
+        Generate three neighbors, choose the best neighbor and compare it to the initial state
+    '''
+    def explore(self, state):
         nhb_1 = self.get_neighbor(state)
         nhb_2 = self.get_neighbor(state)
         nhb_3 = self.get_neighbor(state)
@@ -86,36 +96,44 @@ class RandomRestart(Warehouse):
         return nhb if current <= new else state
 
 
-    def hill_climbing(self):  # R = relevant, O = order
-        L = len(self.warehouse.relevant_units)
-        state = np.random.choice([0, 1], size=(L, ), p=[1-self.warehouse.goal/L, self.warehouse.goal/L])  # random array 0='PSU not used', 1='PSU used'
-        k = 0
+    '''
+        Perform hill climbing starting with an random initial state
+    '''
+    def hill_climbing(self):
+        length = len(self.warehouse.relevant_units)
+        self.step = 0
+        # generate the initial state as an array of 1s and 0s with probability based on the goal
+        # 1 = PSU is used 0 = PSU is not used
+        state = np.random.choice([0, 1], size=(length, ), p=[1-self.warehouse.goal/length, self.warehouse.goal/length])
 
-        while (len(self.get_covered_items(state)) != self.warehouse.goal):
-            state = self.make_move_hill(state)
-            k += 1
+        while len(self.get_covered_items(state)) != self.warehouse.goal:
+            state = self.explore(state)
+            self.step += 1
 
+        return state
 
-        retrieved_units = self.retrieve_units(state)
-
-        retrieved_items = len(self.get_covered_items(state))
-
-        number_used_units = sum(state)
-        output = {"number_units": number_used_units,
-                  "units": [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
-                  "iterations": k,
-                  "covered_items": retrieved_items,
-                  "goal": self.warehouse.goal
-                  }
-        return(number_used_units, output)
-
+    '''
+        Perform n random restarts, where n is a number chosen by the user
+    '''
     def random_restart(self):
-        result_current = self.hill_climbing()
+        new_state = self.hill_climbing()
 
         for _ in range(self.number_states):
-            result_new = self.hill_climbing()
-            # because less PSUs is better:
-            if result_new[0] <= result_current[0]:
-                result_current = result_new
-        return result_current[1]
+            current_state = self.hill_climbing()
+            # because fewer PSUs is better:
+            if sum(current_state) <= sum(new_state):
+                print(sum(current_state, sum(new_state)))
+                new_state = current_state
 
+        retrieved_units = self.retrieve_units(current_state)
+        retrieved_items = len(self.get_covered_items(current_state))
+        number_used_units = sum(current_state)
+        units = [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units]
+        output = {"goal": self.warehouse.goal,
+                  "iterations": self.step,
+                  "covered_items": retrieved_items,
+                  "number_units": number_used_units,
+                  "units": units,
+                  }
+
+        return output

@@ -1,3 +1,8 @@
+"""
+    Class generates a neighborhood and explores it using
+    first choice hill climbing algorithm.
+"""
+
 import random
 import numpy as np
 from warehouse import Warehouse
@@ -7,7 +12,7 @@ class FirstChoiceHillClimbing(Warehouse):
         self.warehouse = Warehouse(filepath_warehouse, filepath_order)
 
     '''
-        return a list of all items from the order covered in the particular state
+        Return a list of all items from the order covered in the particular state
         for the goal to be reached, number of covered items must be equal to number of items in order
     '''
     def get_covered_items(self, state):
@@ -22,8 +27,8 @@ class FirstChoiceHillClimbing(Warehouse):
         return items
 
     '''
-        calculate the cost of a state
-        cost is the number of covered items in that state minus the number of PSUs used
+        Calculate the cost of a state
+        Cost is the number of covered items in that state minus the number of PSUs used
     '''
     def get_cost(self, state):
         covered_items = self.get_covered_items(state)
@@ -33,92 +38,81 @@ class FirstChoiceHillClimbing(Warehouse):
         return cost
 
     '''
-    
+        Generate a neighborhood by setting 2 random psus to 0 with 100% probability
+        and one of them to 1 with a 50% probability
     '''
-    def get_neighbor(self, state):
-        nhb = state.copy()
-        x = random.choice(range(0, len(nhb) - 1))
-        y = random.choice(range(0, len(nhb) - 1))
-        u = random.choice(range(0, len(nhb) - 1))
+    def get_neighbors(self, state):
+        neighbor = state.copy()
+        x = random.choice(range(0, len(neighbor) - 1))
+        y = random.choice(range(0, len(neighbor) - 1))
+        u = random.choice(range(0, len(neighbor) - 1))
         z = np.random.choice([0, 1], 1)
-        nhb[x] = 0
-        nhb[u] = 0
+        neighbor[x] = 0
+        neighbor[u] = 0
         if z == 0:
-            nhb[y] = 0
+            neighbor[y] = 0
         else:
-            nhb[y] = 1
+            neighbor[y] = 1
 
-        return nhb
+        return neighbor
 
     '''
-        given a state, return a tuple containing the corresponding PSU and a list of the items inside it
+        Given a state, return a tuple containing the corresponding PSU and a list of the items inside it
     '''
-    def retrieve_units(self, state):  # TODO rename retrieve_psus() or smth?
+    def retrieve_units(self, state):
         retrieved = []
         for i in range(len(state)):
             if state[i] == 1:
                 index = self.warehouse.indices_relevant_units[i]
                 items = self.warehouse.encoded_warehouse[index]
                 retrieved.append((index, items))
+
         return retrieved
 
     '''
-        given a state, look at the nearest neighbor and return it if it improves the cost value
-        if no neighbor improves it, return the initial state
+        Given a state, look at the nearest neighbor and return it, if it improves the cost value
+        If no neighbor improves it, return the initial state
     '''
-    def make_move_hill(self, state):
-        neighbor = self.get_neighbor(state)
+    def explore(self, state):
+        neighbor = self.get_neighbors(state)
         cost_current = self.get_cost(state)
         cost_neighbor = self.get_cost(neighbor)
 
         return neighbor if cost_current <= cost_neighbor else state
 
-    def translate_state(self, state):  # TODO rename retrieve_psus() or smth?
-        retrieved = []
-        for i in range(len(state)):
-            if state[i] == 1:
-                index = self.warehouse.indices_relevant_units[i]
-                items = self.warehouse.encoded_warehouse[index]
-                retrieved.append((index, items))
-        return retrieved
 
     '''
-        perform first choice hill climbing
-        return
+        Perform first choice hill climbing
+        Return the output in the shape of a dictionary containing the number of used units, a tuple with
+        their index and the items they contain, the items from the order covered and the number of iterations
     '''
 
     def first_choice_hill_climbing(self):
-        l = len(self.warehouse.relevant_units)
+        length = len(self.warehouse.relevant_units)
         # generate the initial state as an array of 1s and 0s with probability based on the goal
-        initial_state = np.random.choice([0, 1], size=(l,),
-                                 p=[1 -  self.warehouse.goal / l,  self.warehouse.goal / l])
+        # 1 = PSU is used 0 = PSU is not used
+        initial_state = np.random.choice([0, 1], size=(length,),
+                                 p=[1 -  self.warehouse.goal / length,  self.warehouse.goal / length])
         step = 0
         # keep exploring until the number of covered items corresponds to the number of items in order
         while (len(self.get_covered_items(initial_state)) != self.warehouse.goal):
-            initial_state = self.make_move_hill(initial_state)
+            initial_state = self.explore(initial_state)
             step += 1
 
         best_state = initial_state
         retrieved_units = self.retrieve_units(best_state)
         retrieved_items = len(self.get_covered_items(best_state))
         number_used_units = sum(best_state)
-        # print("iterations:", step,
-        #       "\nPSUs used:", number_used_units,
-        #       "\ncovered:", retrieved_items,
-        #       "\nItems in order:", self.warehouse.goal,
-        #       "\nContent of used PSUs:", retrieved_units)
-        output = {"number_units" : number_used_units,
-                  "units" : [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units],
-                  "iterations" : step,
-                  "covered_items" : retrieved_items,
-                  "goal" : self.warehouse.goal
+        #decode the items from numbers to natural language
+        units = [(i[0], self.warehouse.decode_items(i[1])) for i in retrieved_units]
+
+        output = {"goal" : self.warehouse.goal,
+                  "iterations": step,
+                  "covered_items": retrieved_items,
+                  "number_units" : number_used_units,
+                  "units" : units
         }
-        # print(output.items())
+
         return output
 
 
-
-# path_w = "../data/problem1.txt"
-# path_o = "../data/order11.txt"
-# fchc = FirstChoiceHillClimbing(path_w, path_o)
-# fchc.first_choice_hill_climbing()
